@@ -1,0 +1,485 @@
+﻿{
+    "inscripcionId":  1,
+    "respuestas":  [
+                       {
+                           "numero":  1,
+                           "marcas":  [
+                                          "A"
+                                      ]
+                       },
+                       {
+                           "numero":  2,
+                           "marcas":  [
+                                          "B"
+                                      ]
+                       },
+                       {
+                           "numero":  3,
+                           "marcas":  [
+                                          "C"
+                                      ]
+                       },
+                       {
+                           "numero":  4,
+                           "marcas":  [
+                                          "D"
+                                      ]
+                       },
+                       {
+                           "numero":  5,
+                           "marcas":  [
+                                          "E"
+                                      ]
+                       },
+                       {
+                           "numero":  6,
+                           "marcas":  [
+                                          "A"
+                                      ]
+                       },
+                       {
+                           "numero":  7,
+                           "marcas":  [
+                                          "B"
+                                      ]
+                       },
+                       {
+                           "numero":  8,
+                           "marcas":  [
+                                          "C"
+                                      ]
+                       },
+                       {
+                           "numero":  9,
+                           "marcas":  [
+                                          "D"
+                                      ]
+                       },
+                       {
+                           "numero":  10,
+                           "marcas":  [
+                                          "E"
+                                      ]
+                       },
+                       {
+                           "numero":  11,
+                           "marcas":  [
+                                          "A"
+                                      ]
+                       },
+                       {
+                           "numero":  12,
+                           "marcas":  [
+                                          "B"
+                                      ]
+                       },
+                       {
+                           "numero":  13,
+                           "marcas":  [
+                                          "C"
+                                      ]
+                       },
+                       {
+                           "numero":  14,
+                           "marcas":  [
+                                          "D"
+                                      ]
+                       },
+                       {
+                           "numero":  15,
+                           "marcas":  [
+                                          "E"
+                                      ]
+                       },
+                       {
+                           "numero":  16,
+                           "marcas":  [
+                                          "A"
+                                      ]
+                       },
+                       {
+                           "numero":  17,
+                           "marcas":  [
+                                          "B"
+                                      ]
+                       },
+                       {
+                           "numero":  18,
+                           "marcas":  [
+                                          "C"
+                                      ]
+                       },
+                       {
+                           "numero":  19,
+                           "marcas":  [
+                                          "D"
+                                      ]
+                       },
+                       {
+                           "numero":  20,
+                           "marcas":  [
+                                          "E"
+                                      ]
+                       },
+                       {
+                           "numero":  21,
+                           "marcas":  [
+                                          "A"
+                                      ]
+                       },
+                       {
+                           "numero":  22,
+                           "marcas":  [
+                                          "B"
+                                      ]
+                       },
+                       {
+                           "numero":  23,
+                           "marcas":  [
+                                          "C"
+                                      ]
+                       },
+                       {
+                           "numero":  24,
+                           "marcas":  [
+                                          "D"
+                                      ]
+                       },
+                       {
+                           "numero":  25,
+                           "marcas":  [
+                                          "E"
+                                      ]
+                       },
+                       {
+                           "numero":  26,
+                           "marcas":  [
+                                          "A"
+                                      ]
+                       },
+                       {
+                           "numero":  27,
+                           "marcas":  [
+                                          "B"
+                                      ]
+                       },
+                       {
+                           "numero":  28,
+                           "marcas":  [
+                                          "C"
+                                      ]
+                       },
+                       {
+                           "numero":  29,
+                           "marcas":  [
+                                          "D"
+                                      ]
+                       },
+                       {
+                           "numero":  30,
+                           "marcas":  [
+                                          "E"
+                                      ]
+                       },
+                       {
+                           "numero":  31,
+                           "marcas":  [
+                                          "A"
+                                      ]
+                       },
+                       {
+                           "numero":  32,
+                           "marcas":  [
+                                          "B"
+                                      ]
+                       },
+                       {
+                           "numero":  33,
+                           "marcas":  [
+                                          "C"
+                                      ]
+                       },
+                       {
+                           "numero":  34,
+                           "marcas":  [
+                                          "D"
+                                      ]
+                       },
+                       {
+                           "numero":  35,
+                           "marcas":  [
+                                          "E"
+                                      ]
+                       },
+                       {
+                           "numero":  36,
+                           "marcas":  [
+                                          "A"
+                                      ]
+                       },
+                       {
+                           "numero":  37,
+                           "marcas":  [
+                                          "B"
+                                      ]
+                       },
+                       {
+                           "numero":  38,
+                           "marcas":  [
+                                          "C"
+                                      ]
+                       },
+                       {
+                           "numero":  39,
+                           "marcas":  [
+                                          "D"
+                                      ]
+                       },
+                       {
+                           "numero":  40,
+                           "marcas":  [
+                                          "E"
+                                      ]
+                       },
+                       {
+                           "numero":  41,
+                           "marcas":  [
+                                          "A"
+                                      ]
+                       },
+                       {
+                           "numero":  42,
+                           "marcas":  [
+                                          "B"
+                                      ]
+                       },
+                       {
+                           "numero":  43,
+                           "marcas":  [
+                                          "C"
+                                      ]
+                       },
+                       {
+                           "numero":  44,
+                           "marcas":  [
+                                          "D"
+                                      ]
+                       },
+                       {
+                           "numero":  45,
+                           "marcas":  [
+                                          "E"
+                                      ]
+                       },
+                       {
+                           "numero":  46,
+                           "marcas":  [
+                                          "A"
+                                      ]
+                       },
+                       {
+                           "numero":  47,
+                           "marcas":  [
+                                          "B"
+                                      ]
+                       },
+                       {
+                           "numero":  48,
+                           "marcas":  [
+                                          "C"
+                                      ]
+                       },
+                       {
+                           "numero":  49,
+                           "marcas":  [
+                                          "D"
+                                      ]
+                       },
+                       {
+                           "numero":  50,
+                           "marcas":  [
+                                          "E"
+                                      ]
+                       },
+                       {
+                           "numero":  51,
+                           "marcas":  [
+                                          "A"
+                                      ]
+                       },
+                       {
+                           "numero":  52,
+                           "marcas":  [
+                                          "B"
+                                      ]
+                       },
+                       {
+                           "numero":  53,
+                           "marcas":  [
+                                          "C"
+                                      ]
+                       },
+                       {
+                           "numero":  54,
+                           "marcas":  [
+                                          "D"
+                                      ]
+                       },
+                       {
+                           "numero":  55,
+                           "marcas":  [
+                                          "E"
+                                      ]
+                       },
+                       {
+                           "numero":  56,
+                           "marcas":  [
+                                          "A"
+                                      ]
+                       },
+                       {
+                           "numero":  57,
+                           "marcas":  [
+                                          "B"
+                                      ]
+                       },
+                       {
+                           "numero":  58,
+                           "marcas":  [
+                                          "C"
+                                      ]
+                       },
+                       {
+                           "numero":  59,
+                           "marcas":  [
+                                          "D"
+                                      ]
+                       },
+                       {
+                           "numero":  60,
+                           "marcas":  [
+                                          "E"
+                                      ]
+                       },
+                       {
+                           "numero":  61,
+                           "marcas":  [
+                                          "A"
+                                      ]
+                       },
+                       {
+                           "numero":  62,
+                           "marcas":  [
+                                          "B"
+                                      ]
+                       },
+                       {
+                           "numero":  63,
+                           "marcas":  [
+                                          "C"
+                                      ]
+                       },
+                       {
+                           "numero":  64,
+                           "marcas":  [
+                                          "D"
+                                      ]
+                       },
+                       {
+                           "numero":  65,
+                           "marcas":  [
+                                          "E"
+                                      ]
+                       },
+                       {
+                           "numero":  66,
+                           "marcas":  [
+                                          "A"
+                                      ]
+                       },
+                       {
+                           "numero":  67,
+                           "marcas":  [
+                                          "B"
+                                      ]
+                       },
+                       {
+                           "numero":  68,
+                           "marcas":  [
+                                          "C"
+                                      ]
+                       },
+                       {
+                           "numero":  69,
+                           "marcas":  [
+                                          "D"
+                                      ]
+                       },
+                       {
+                           "numero":  70,
+                           "marcas":  [
+                                          "E"
+                                      ]
+                       },
+                       {
+                           "numero":  71,
+                           "marcas":  [
+                                          "A"
+                                      ]
+                       },
+                       {
+                           "numero":  72,
+                           "marcas":  [
+                                          "B"
+                                      ]
+                       },
+                       {
+                           "numero":  73,
+                           "marcas":  [
+                                          "C"
+                                      ]
+                       },
+                       {
+                           "numero":  74,
+                           "marcas":  [
+                                          "D"
+                                      ]
+                       },
+                       {
+                           "numero":  75,
+                           "marcas":  [
+                                          "E"
+                                      ]
+                       },
+                       {
+                           "numero":  76,
+                           "marcas":  [
+                                          "A"
+                                      ]
+                       },
+                       {
+                           "numero":  77,
+                           "marcas":  [
+                                          "B"
+                                      ]
+                       },
+                       {
+                           "numero":  78,
+                           "marcas":  [
+                                          "C"
+                                      ]
+                       },
+                       {
+                           "numero":  79,
+                           "marcas":  [
+                                          "D"
+                                      ]
+                       },
+                       {
+                           "numero":  80,
+                           "marcas":  [
+                                          "E"
+                                      ]
+                       }
+                   ]
+}

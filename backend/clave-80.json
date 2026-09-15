@@ -1,0 +1,405 @@
+﻿{
+    "simulacroId":  1,
+    "preguntas":  [
+                      {
+                          "numero":  1,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "A"
+                      },
+                      {
+                          "numero":  2,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "B"
+                      },
+                      {
+                          "numero":  3,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "C"
+                      },
+                      {
+                          "numero":  4,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "D"
+                      },
+                      {
+                          "numero":  5,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "E"
+                      },
+                      {
+                          "numero":  6,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "A"
+                      },
+                      {
+                          "numero":  7,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "B"
+                      },
+                      {
+                          "numero":  8,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "C"
+                      },
+                      {
+                          "numero":  9,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "D"
+                      },
+                      {
+                          "numero":  10,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "E"
+                      },
+                      {
+                          "numero":  11,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "A"
+                      },
+                      {
+                          "numero":  12,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "B"
+                      },
+                      {
+                          "numero":  13,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "C"
+                      },
+                      {
+                          "numero":  14,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "D"
+                      },
+                      {
+                          "numero":  15,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "E"
+                      },
+                      {
+                          "numero":  16,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "A"
+                      },
+                      {
+                          "numero":  17,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "B"
+                      },
+                      {
+                          "numero":  18,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "C"
+                      },
+                      {
+                          "numero":  19,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "D"
+                      },
+                      {
+                          "numero":  20,
+                          "areaId":  1,
+                          "respuestaCorrecta":  "E"
+                      },
+                      {
+                          "numero":  21,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "A"
+                      },
+                      {
+                          "numero":  22,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "B"
+                      },
+                      {
+                          "numero":  23,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "C"
+                      },
+                      {
+                          "numero":  24,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "D"
+                      },
+                      {
+                          "numero":  25,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "E"
+                      },
+                      {
+                          "numero":  26,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "A"
+                      },
+                      {
+                          "numero":  27,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "B"
+                      },
+                      {
+                          "numero":  28,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "C"
+                      },
+                      {
+                          "numero":  29,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "D"
+                      },
+                      {
+                          "numero":  30,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "E"
+                      },
+                      {
+                          "numero":  31,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "A"
+                      },
+                      {
+                          "numero":  32,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "B"
+                      },
+                      {
+                          "numero":  33,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "C"
+                      },
+                      {
+                          "numero":  34,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "D"
+                      },
+                      {
+                          "numero":  35,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "E"
+                      },
+                      {
+                          "numero":  36,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "A"
+                      },
+                      {
+                          "numero":  37,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "B"
+                      },
+                      {
+                          "numero":  38,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "C"
+                      },
+                      {
+                          "numero":  39,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "D"
+                      },
+                      {
+                          "numero":  40,
+                          "areaId":  2,
+                          "respuestaCorrecta":  "E"
+                      },
+                      {
+                          "numero":  41,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "A"
+                      },
+                      {
+                          "numero":  42,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "B"
+                      },
+                      {
+                          "numero":  43,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "C"
+                      },
+                      {
+                          "numero":  44,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "D"
+                      },
+                      {
+                          "numero":  45,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "E"
+                      },
+                      {
+                          "numero":  46,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "A"
+                      },
+                      {
+                          "numero":  47,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "B"
+                      },
+                      {
+                          "numero":  48,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "C"
+                      },
+                      {
+                          "numero":  49,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "D"
+                      },
+                      {
+                          "numero":  50,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "E"
+                      },
+                      {
+                          "numero":  51,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "A"
+                      },
+                      {
+                          "numero":  52,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "B"
+                      },
+                      {
+                          "numero":  53,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "C"
+                      },
+                      {
+                          "numero":  54,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "D"
+                      },
+                      {
+                          "numero":  55,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "E"
+                      },
+                      {
+                          "numero":  56,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "A"
+                      },
+                      {
+                          "numero":  57,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "B"
+                      },
+                      {
+                          "numero":  58,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "C"
+                      },
+                      {
+                          "numero":  59,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "D"
+                      },
+                      {
+                          "numero":  60,
+                          "areaId":  3,
+                          "respuestaCorrecta":  "E"
+                      },
+                      {
+                          "numero":  61,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "A"
+                      },
+                      {
+                          "numero":  62,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "B"
+                      },
+                      {
+                          "numero":  63,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "C"
+                      },
+                      {
+                          "numero":  64,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "D"
+                      },
+                      {
+                          "numero":  65,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "E"
+                      },
+                      {
+                          "numero":  66,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "A"
+                      },
+                      {
+                          "numero":  67,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "B"
+                      },
+                      {
+                          "numero":  68,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "C"
+                      },
+                      {
+                          "numero":  69,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "D"
+                      },
+                      {
+                          "numero":  70,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "E"
+                      },
+                      {
+                          "numero":  71,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "A"
+                      },
+                      {
+                          "numero":  72,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "B"
+                      },
+                      {
+                          "numero":  73,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "C"
+                      },
+                      {
+                          "numero":  74,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "D"
+                      },
+                      {
+                          "numero":  75,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "E"
+                      },
+                      {
+                          "numero":  76,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "A"
+                      },
+                      {
+                          "numero":  77,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "B"
+                      },
+                      {
+                          "numero":  78,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "C"
+                      },
+                      {
+                          "numero":  79,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "D"
+                      },
+                      {
+                          "numero":  80,
+                          "areaId":  4,
+                          "respuestaCorrecta":  "E"
+                      }
+                  ]
+}

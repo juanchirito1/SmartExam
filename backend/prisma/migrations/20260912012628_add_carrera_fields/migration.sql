@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "public"."Carrera" ADD COLUMN     "creadoEn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "estado" BOOLEAN NOT NULL DEFAULT true;

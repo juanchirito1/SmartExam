@@ -1,0 +1,215 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Usuario {
+  id           Int      @id @default(autoincrement())
+  nombre       String
+  correo       String   @unique
+  passwordHash String
+  estado       Boolean  @default(true)
+  creadoEn     DateTime @default(now())
+
+  rolId Int
+  rol   Rol @relation(fields: [rolId], references: [id])
+}
+
+model Rol {
+  id     Int    @id @default(autoincrement())
+  nombre String @unique
+
+  usuarios Usuario[]
+  permisos RolPermiso[]
+}
+
+model Permiso {
+  id     Int    @id @default(autoincrement())
+  nombre String @unique
+
+  roles RolPermiso[]
+}
+
+model RolPermiso {
+  id Int @id @default(autoincrement())
+
+  rolId     Int
+  permisoId Int
+
+  rol     Rol     @relation(fields: [rolId], references: [id])
+  permiso Permiso @relation(fields: [permisoId], references: [id])
+
+  @@unique([rolId, permisoId])
+}
+
+model Grupo {
+  id Int @id @default(autoincrement())
+
+  codigo String @unique
+
+  nombre String
+
+  carreras Carrera[]
+
+  reglasPuntaje ReglaPuntaje[]
+
+  inscripciones Inscripcion[]
+}
+
+model Carrera {
+  id Int @id @default(autoincrement())
+
+  nombre String @unique
+
+  grupoId Int
+
+  estado Boolean @default(true)
+
+  creadoEn DateTime @default(now())
+
+  grupo Grupo @relation(fields: [grupoId], references: [id])
+
+  inscripciones Inscripcion[]
+}
+
+model Area {
+  id Int @id @default(autoincrement())
+
+  nombre String @unique
+
+  reglasPuntaje ReglaPuntaje[]
+
+  preguntas Pregunta[]
+}
+
+model ReglaPuntaje {
+  id Int @id @default(autoincrement())
+
+  grupoId Int
+
+  areaId Int
+
+  puntajeCorrecta Float
+
+  puntajeIncorrecta Float @default(-0.1)
+
+  puntajeBlanco Float @default(0)
+
+  grupo Grupo @relation(fields: [grupoId], references: [id])
+
+  area Area @relation(fields: [areaId], references: [id])
+
+  @@unique([grupoId, areaId])
+}
+
+model Pregunta {
+  id                Int    @id @default(autoincrement())
+  numero            Int
+  respuestaCorrecta String
+
+  simulacroId Int
+  simulacro   Simulacro @relation(fields: [simulacroId], references: [id])
+
+  areaId Int
+  area   Area @relation(fields: [areaId], references: [id])
+
+  detallesResultado DetalleResultado[]
+
+  @@unique([simulacroId, numero])
+}
+
+model Alumno {
+  id            Int           @id @default(autoincrement())
+  dni           String        @unique
+  nombres       String
+  apellidos     String
+  telefono      String?
+  correo        String?
+  estado        Boolean       @default(true)
+  creadoEn      DateTime      @default(now())
+  inscripciones Inscripcion[]
+}
+
+model Ciclo {
+  id       Int      @id @default(autoincrement())
+  nombre   String   @unique
+  estado   Boolean  @default(true)
+  creadoEn DateTime @default(now())
+
+  simulacros Simulacro[]
+}
+
+model Simulacro {
+  id             Int      @id @default(autoincrement())
+  numero         Int
+  fecha          DateTime
+  totalPreguntas Int      @default(80)
+  estado         String   @default("BORRADOR")
+  creadoEn       DateTime @default(now())
+
+  cicloId Int
+  ciclo   Ciclo @relation(fields: [cicloId], references: [id])
+
+  inscripciones Inscripcion[]
+  preguntas     Pregunta[]
+
+  @@unique([cicloId, numero])
+}
+
+model Inscripcion {
+  id       Int      @id @default(autoincrement())
+  estado   Boolean  @default(true)
+  creadoEn DateTime @default(now())
+
+  alumnoId Int
+  alumno   Alumno @relation(fields: [alumnoId], references: [id])
+
+  simulacroId Int
+  simulacro   Simulacro @relation(fields: [simulacroId], references: [id])
+
+  carreraId Int
+  carrera   Carrera @relation(fields: [carreraId], references: [id])
+
+  grupoId Int
+  grupo   Grupo @relation(fields: [grupoId], references: [id])
+
+  resultado Resultado?
+
+  @@unique([alumnoId, simulacroId])
+}
+
+model Resultado {
+  id           Int      @id @default(autoincrement())
+  puntajeTotal Float    @default(0)
+  correctas    Int      @default(0)
+  incorrectas  Int      @default(0)
+  blancas      Int      @default(0)
+  dobles       Int      @default(0)
+  estado       String   @default("PROCESADO")
+  procesadoEn  DateTime @default(now())
+
+  inscripcionId Int         @unique
+  inscripcion   Inscripcion @relation(fields: [inscripcionId], references: [id])
+
+  detalles DetalleResultado[]
+}
+
+model DetalleResultado {
+  id               Int     @id @default(autoincrement())
+  respuestaMarcada String?
+  tipo             String
+  puntajeObtenido  Float
+
+  resultadoId Int
+  resultado   Resultado @relation(fields: [resultadoId], references: [id])
+
+  preguntaId Int
+  pregunta   Pregunta @relation(fields: [preguntaId], references: [id])
+
+  @@unique([resultadoId, preguntaId])
+}
