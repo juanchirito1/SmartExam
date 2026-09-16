@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+
 import { AppModule } from './app.module.js';
 
 import {
@@ -13,6 +14,13 @@ async function bootstrap() {
     await NestFactory.create(
       AppModule
     );
+
+
+  // CORS para permitir conexión con Next.js
+  app.enableCors({
+    origin: 'http://localhost:3001',
+    credentials: true,
+  });
 
 
   const config =
@@ -43,7 +51,6 @@ async function bootstrap() {
   await app.listen(
     3000
   );
-
 }
 
 bootstrap();
