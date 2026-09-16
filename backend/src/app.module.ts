@@ -13,6 +13,7 @@ import { CarnetsModule } from './carnets/carnets.module.js';
 import { PreguntasModule } from './preguntas/preguntas.module.js';
 import { ResultadosModule } from './resultados/resultados.module.js';
 import { FichasModule } from './fichas/fichas.module.js';
+import { DashboardModule } from './dashboard/dashboard.module.js';
 
 
 @Module({
@@ -48,6 +49,8 @@ import { FichasModule } from './fichas/fichas.module.js';
     ResultadosModule,
 
     FichasModule,
+
+    DashboardModule,
 
   ],
 
