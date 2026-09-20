@@ -1,129 +1,110 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-
 import { api } from "@/lib/api";
-import StatCard from "@/components/dashboard/stat-card";
 
-interface ResumenDashboard {
+import StatCard from "@/components/dashboard/stat-card";
+import PerformanceChart from "@/components/dashboard/performance-chart";
+import AreaChartDashboard from "@/components/dashboard/area-chart";
+import RankingTable from "@/components/dashboard/ranking-table";
+
+interface Resumen {
   totalAlumnos: number;
   totalSimulacros: number;
   fichasProcesadas: number;
   promedioGeneral: number;
 }
 
+interface Ranking {
+  puesto: number;
+  alumno: string;
+  carrera: string;
+  puntaje: number;
+}
+
+interface Area {
+  area: string;
+  rendimiento: number;
+}
+
 export default function DashboardPage() {
-  const router = useRouter();
+  const [resumen, setResumen] = useState<Resumen | null>(null);
 
-  const [data, setData] =
-    useState<ResumenDashboard | null>(null);
+  const [ranking, setRanking] = useState<Ranking[]>([]);
 
-  const [cargando, setCargando] =
-    useState(true);
-
-  const [error, setError] =
-    useState("");
+  const [areas, setAreas] = useState<Area[]>([]);
 
   useEffect(() => {
-    async function cargarResumen() {
+    async function cargar() {
       try {
-        setCargando(true);
-        setError("");
+        const [resumenResponse, rankingResponse, areasResponse] =
+          await Promise.all([
+            api.get("/dashboard/resumen"),
 
-        const respuesta = await api.get(
-          "/dashboard/resumen",
-        );
+            api.get("/dashboard/ranking/1"),
 
-        setData(respuesta.data);
-      } catch (error: any) {
-        console.error(
-          "Error cargando dashboard:",
-          error,
-        );
+            api.get("/dashboard/rendimiento-area/1"),
+          ]);
 
-        if (error.response?.status === 401) {
-          localStorage.removeItem("token");
-          router.push("/login");
-          return;
-        }
+        setResumen(resumenResponse.data);
 
-        setError(
-          "No se pudo cargar la información del dashboard.",
-        );
-      } finally {
-        setCargando(false);
+        const rankingData = Array.isArray(rankingResponse.data)
+          ? rankingResponse.data
+          : (rankingResponse.data.ranking ?? []);
+
+        const areasData = Array.isArray(areasResponse.data)
+          ? areasResponse.data
+          : (areasResponse.data.areas ?? []);
+
+        setRanking(rankingData);
+
+        console.log("RESPUESTA AREAS:", areasData);
+
+        setAreas(areasData);
+      } catch (error) {
+        console.error("Error dashboard", error);
       }
     }
 
-    cargarResumen();
-  }, [router]);
+    cargar();
+  }, []);
 
-  if (cargando) {
-    return (
-      <div>
-        <h1 className="text-3xl font-bold">
-          Dashboard SmartExam
-        </h1>
-
-        <p className="mt-4 text-muted-foreground">
-          Cargando información...
-        </p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div>
-        <h1 className="text-3xl font-bold">
-          Dashboard SmartExam
-        </h1>
-
-        <p className="mt-4 text-red-500">
-          {error}
-        </p>
-      </div>
-    );
-  }
-
-  if (!data) {
-    return null;
+  if (!resumen) {
+    return <div className="p-10">Cargando dashboard...</div>;
   }
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">
-          Dashboard SmartExam
-        </h1>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold">Dashboard SmartExam</h1>
 
-        <p className="mt-2 text-muted-foreground">
-          Resumen general del sistema
-        </p>
+        <p className="text-muted-foreground">Resumen académico general</p>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          title="Total alumnos"
-          value={data.totalAlumnos}
-        />
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <StatCard title="Total alumnos" value={resumen.totalAlumnos} />
 
-        <StatCard
-          title="Simulacros"
-          value={data.totalSimulacros}
-        />
+        <StatCard title="Simulacros" value={resumen.totalSimulacros} />
 
-        <StatCard
-          title="Fichas procesadas"
-          value={data.fichasProcesadas}
-        />
+        <StatCard title="Fichas procesadas" value={resumen.fichasProcesadas} />
 
-        <StatCard
-          title="Promedio general"
-          value={data.promedioGeneral}
-        />
+        <StatCard title="Promedio general" value={resumen.promedioGeneral} />
       </div>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <PerformanceChart
+          data={[
+            {
+              nombre: "Simulacro 1",
+              promedio: resumen.promedioGeneral,
+            },
+          ]}
+        />
+
+        <AreaChartDashboard data={areas} />
+      </div>
+
+      <RankingTable data={ranking} />
     </div>
   );
 }

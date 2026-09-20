@@ -12,9 +12,7 @@ import { UpdateInscripcionDto } from './dto/update-inscripcion.dto.js';
 
 @Injectable()
 export class InscripcionesService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateInscripcionDto) {
     // ===================================================
@@ -28,37 +26,30 @@ export class InscripcionesService {
     });
 
     if (!alumno) {
-      throw new NotFoundException(
-        'El alumno indicado no existe',
-      );
+      throw new NotFoundException('El alumno indicado no existe');
     }
 
     if (!alumno.estado) {
-      throw new BadRequestException(
-        'El alumno se encuentra inactivo',
-      );
+      throw new BadRequestException('El alumno se encuentra inactivo');
     }
 
     // ===================================================
     // 2. Validamos simulacro
     // ===================================================
 
-    const simulacro =
-      await this.prisma.simulacro.findUnique({
-        where: {
-          id: dto.simulacroId,
-        },
-      });
+    const simulacro = await this.prisma.simulacro.findUnique({
+      where: {
+        id: dto.simulacroId,
+      },
+    });
 
     if (!simulacro) {
-      throw new NotFoundException(
-        'El simulacro indicado no existe',
-      );
+      throw new NotFoundException('El simulacro indicado no existe');
     }
 
-    if (simulacro.estado === 'CERRADO') {
+    if (simulacro.estado === 'FINALIZADO' || simulacro.estado === 'CERRADO') {
       throw new BadRequestException(
-        'No se puede registrar una inscripción en un simulacro cerrado',
+        'No se puede registrar una inscripción en un simulacro finalizado',
       );
     }
 
@@ -66,21 +57,18 @@ export class InscripcionesService {
     // 3. Validamos carrera
     // ===================================================
 
-    const carrera =
-      await this.prisma.carrera.findUnique({
-        where: {
-          id: dto.carreraId,
-        },
+    const carrera = await this.prisma.carrera.findUnique({
+      where: {
+        id: dto.carreraId,
+      },
 
-        include: {
-          grupo: true,
-        },
-      });
+      include: {
+        grupo: true,
+      },
+    });
 
     if (!carrera) {
-      throw new NotFoundException(
-        'La carrera indicada no existe',
-      );
+      throw new NotFoundException('La carrera indicada no existe');
     }
 
     if (!carrera.estado) {
@@ -93,15 +81,14 @@ export class InscripcionesService {
     // 4. Evitamos doble inscripción
     // ===================================================
 
-    const existente =
-      await this.prisma.inscripcion.findUnique({
-        where: {
-          alumnoId_simulacroId: {
-            alumnoId: dto.alumnoId,
-            simulacroId: dto.simulacroId,
-          },
+    const existente = await this.prisma.inscripcion.findUnique({
+      where: {
+        alumnoId_simulacroId: {
+          alumnoId: dto.alumnoId,
+          simulacroId: dto.simulacroId,
         },
-      });
+      },
+    });
 
     if (existente) {
       throw new ConflictException(
@@ -166,31 +153,28 @@ export class InscripcionesService {
   }
 
   async findOne(id: number) {
-    const inscripcion =
-      await this.prisma.inscripcion.findUnique({
-        where: {
-          id,
-        },
+    const inscripcion = await this.prisma.inscripcion.findUnique({
+      where: {
+        id,
+      },
 
-        include: {
-          alumno: true,
+      include: {
+        alumno: true,
 
-          carrera: true,
+        carrera: true,
 
-          grupo: true,
+        grupo: true,
 
-          simulacro: {
-            include: {
-              ciclo: true,
-            },
+        simulacro: {
+          include: {
+            ciclo: true,
           },
         },
-      });
+      },
+    });
 
     if (!inscripcion) {
-      throw new NotFoundException(
-        'Inscripción no encontrada',
-      );
+      throw new NotFoundException('Inscripción no encontrada');
     }
 
     return inscripcion;
@@ -240,27 +224,20 @@ export class InscripcionesService {
     });
   }
 
-  async update(
-    id: number,
-    dto: UpdateInscripcionDto,
-  ) {
-    const inscripcion =
-      await this.findOne(id);
+  async update(id: number, dto: UpdateInscripcionDto) {
+    const inscripcion = await this.findOne(id);
 
     let nuevoGrupoId: number | undefined;
 
     if (dto.carreraId !== undefined) {
-      const carrera =
-        await this.prisma.carrera.findUnique({
-          where: {
-            id: dto.carreraId,
-          },
-        });
+      const carrera = await this.prisma.carrera.findUnique({
+        where: {
+          id: dto.carreraId,
+        },
+      });
 
       if (!carrera) {
-        throw new NotFoundException(
-          'La carrera indicada no existe',
-        );
+        throw new NotFoundException('La carrera indicada no existe');
       }
 
       if (!carrera.estado) {

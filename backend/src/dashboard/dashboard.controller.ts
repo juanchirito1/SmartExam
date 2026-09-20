@@ -33,4 +33,9 @@ export class DashboardController {
   ) {
     return this.dashboardService.estadisticas(simulacroId);
   }
+
+  @Get('rendimiento-area/:id')
+  rendimientoArea(@Param('id') id: string) {
+    return this.dashboardService.rendimientoPorArea(Number(id));
+  }
 }

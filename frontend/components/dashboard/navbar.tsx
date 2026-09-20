@@ -1,3 +1,4 @@
+import LogoutButton from "@/components/dashboard/logout-button";
 export default function Navbar(){
 
   return (
@@ -8,11 +9,7 @@ export default function Navbar(){
       </h2>
 
 
-      <button
-        className="text-sm text-red-600"
-      >
-        Cerrar sesión
-      </button>
+      <LogoutButton />
 
     </header>
   );

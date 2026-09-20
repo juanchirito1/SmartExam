@@ -109,4 +109,47 @@ export class DashboardService {
       menorPuntaje: menor,
     };
   }
+  async rendimientoPorArea(simulacroId: number) {
+    const detalles = await this.prisma.detalleResultado.findMany({
+      where: {
+        resultado: {
+          inscripcion: {
+            simulacroId,
+          },
+        },
+      },
+
+      include: {
+        pregunta: {
+          include: {
+            area: true,
+          },
+        },
+      },
+    });
+
+    const agrupado: any = {};
+
+    detalles.forEach((detalle) => {
+      const area = detalle.pregunta.area.nombre;
+
+      if (!agrupado[area]) {
+        agrupado[area] = {
+          suma: 0,
+          cantidad: 0,
+        };
+      }
+
+      agrupado[area].suma += detalle.puntajeObtenido;
+      agrupado[area].cantidad++;
+    });
+
+    return Object.keys(agrupado).map((area) => ({
+      area,
+
+      rendimiento: Number(
+        (agrupado[area].suma / agrupado[area].cantidad).toFixed(2),
+      ),
+    }));
+  }
 }

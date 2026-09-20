@@ -14,6 +14,7 @@ import { PreguntasModule } from './preguntas/preguntas.module.js';
 import { ResultadosModule } from './resultados/resultados.module.js';
 import { FichasModule } from './fichas/fichas.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
+import { AreasModule } from './areas/areas.module.js';
 
 
 @Module({
@@ -51,6 +52,8 @@ import { DashboardModule } from './dashboard/dashboard.module.js';
     FichasModule,
 
     DashboardModule,
+
+    AreasModule,
 
   ],
 
