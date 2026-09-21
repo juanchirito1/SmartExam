@@ -72,8 +72,15 @@ export class AlumnosController {
   desactivar(
     @Param('id', ParseIntPipe) id: number,
   ) {
-    return this.alumnosService.desactivar(
-      id,
-    );
+    return this.alumnosService.desactivar(id);
+  }
+
+  @Patch(':id/reactivar')
+  @UseGuards(PermissionsGuard)
+  @Permissions('REGISTRAR_ALUMNOS')
+  reactivar(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.alumnosService.reactivar(id);
   }
 }

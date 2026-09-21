@@ -1,29 +1,54 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
-  BadRequestException,
 } from '@nestjs/common';
+
+import { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service.js';
 
 import { CreateInscripcionDto } from './dto/create-inscripcion.dto.js';
+
 import { UpdateInscripcionDto } from './dto/update-inscripcion.dto.js';
 
 @Injectable()
 export class InscripcionesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateInscripcionDto) {
-    // ===================================================
-    // 1. Validamos alumno
-    // ===================================================
+  // =========================================================
+  // CREAR
+  // =========================================================
 
-    const alumno = await this.prisma.alumno.findUnique({
-      where: {
-        id: dto.alumnoId,
-      },
-    });
+  async create(dto: CreateInscripcionDto) {
+    const [alumno, simulacro, carrera] = await Promise.all([
+      this.prisma.alumno.findUnique({
+        where: {
+          id: dto.alumnoId,
+        },
+      }),
+
+      this.prisma.simulacro.findUnique({
+        where: {
+          id: dto.simulacroId,
+        },
+      }),
+
+      this.prisma.carrera.findUnique({
+        where: {
+          id: dto.carreraId,
+        },
+
+        include: {
+          grupo: true,
+        },
+      }),
+    ]);
+
+    // =======================================================
+    // ALUMNO
+    // =======================================================
 
     if (!alumno) {
       throw new NotFoundException('El alumno indicado no existe');
@@ -33,15 +58,9 @@ export class InscripcionesService {
       throw new BadRequestException('El alumno se encuentra inactivo');
     }
 
-    // ===================================================
-    // 2. Validamos simulacro
-    // ===================================================
-
-    const simulacro = await this.prisma.simulacro.findUnique({
-      where: {
-        id: dto.simulacroId,
-      },
-    });
+    // =======================================================
+    // SIMULACRO
+    // =======================================================
 
     if (!simulacro) {
       throw new NotFoundException('El simulacro indicado no existe');
@@ -53,19 +72,9 @@ export class InscripcionesService {
       );
     }
 
-    // ===================================================
-    // 3. Validamos carrera
-    // ===================================================
-
-    const carrera = await this.prisma.carrera.findUnique({
-      where: {
-        id: dto.carreraId,
-      },
-
-      include: {
-        grupo: true,
-      },
-    });
+    // =======================================================
+    // CARRERA
+    // =======================================================
 
     if (!carrera) {
       throw new NotFoundException('La carrera indicada no existe');
@@ -77,14 +86,15 @@ export class InscripcionesService {
       );
     }
 
-    // ===================================================
-    // 4. Evitamos doble inscripción
-    // ===================================================
+    // =======================================================
+    // DUPLICIDAD
+    // =======================================================
 
     const existente = await this.prisma.inscripcion.findUnique({
       where: {
         alumnoId_simulacroId: {
           alumnoId: dto.alumnoId,
+
           simulacroId: dto.simulacroId,
         },
       },
@@ -96,39 +106,70 @@ export class InscripcionesService {
       );
     }
 
-    // ===================================================
-    // 5. Creamos inscripción
-    // ===================================================
+    // =======================================================
+    // CREAR
+    // =======================================================
 
-    return this.prisma.inscripcion.create({
-      data: {
-        alumnoId: dto.alumnoId,
-        simulacroId: dto.simulacroId,
-        carreraId: dto.carreraId,
+    try {
+      return await this.prisma.inscripcion.create({
+        data: {
+          alumnoId: dto.alumnoId,
 
-        // Se toma automáticamente de la carrera.
-        grupoId: carrera.grupoId,
-      },
+          simulacroId: dto.simulacroId,
 
-      include: {
-        alumno: true,
+          carreraId: dto.carreraId,
 
-        carrera: {
-          include: {
-            grupo: true,
-          },
+          /*
+              Snapshot del grupo en el momento
+              de la inscripción.
+            */
+
+          grupoId: carrera.grupoId,
         },
 
-        grupo: true,
+        include: {
+          alumno: true,
 
-        simulacro: {
-          include: {
-            ciclo: true,
+          carrera: {
+            include: {
+              grupo: true,
+            },
+          },
+
+          grupo: true,
+
+          simulacro: {
+            include: {
+              ciclo: true,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (error) {
+      /*
+        Protección contra condición de carrera.
+
+        Aunque dos peticiones intentaran registrar
+        simultáneamente al mismo alumno, PostgreSQL
+        sigue siendo la última barrera.
+      */
+
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException(
+          'El alumno ya está inscrito en este simulacro',
+        );
+      }
+
+      throw error;
+    }
   }
+
+  // =========================================================
+  // LISTAR
+  // =========================================================
 
   async findAll() {
     return this.prisma.inscripcion.findMany({
@@ -152,6 +193,10 @@ export class InscripcionesService {
     });
   }
 
+  // =========================================================
+  // OBTENER
+  // =========================================================
+
   async findOne(id: number) {
     const inscripcion = await this.prisma.inscripcion.findUnique({
       where: {
@@ -164,6 +209,8 @@ export class InscripcionesService {
         carrera: true,
 
         grupo: true,
+
+        resultado: true,
 
         simulacro: {
           include: {
@@ -180,16 +227,23 @@ export class InscripcionesService {
     return inscripcion;
   }
 
+  // =========================================================
+  // POR SIMULACRO
+  // =========================================================
+
   async findBySimulacro(simulacroId: number) {
     return this.prisma.inscripcion.findMany({
       where: {
         simulacroId,
+
         estado: true,
       },
 
       include: {
         alumno: true,
+
         carrera: true,
+
         grupo: true,
       },
 
@@ -201,6 +255,10 @@ export class InscripcionesService {
     });
   }
 
+  // =========================================================
+  // POR ALUMNO
+  // =========================================================
+
   async findByAlumno(alumnoId: number) {
     return this.prisma.inscripcion.findMany({
       where: {
@@ -209,6 +267,7 @@ export class InscripcionesService {
 
       include: {
         carrera: true,
+
         grupo: true,
 
         simulacro: {
@@ -224,12 +283,35 @@ export class InscripcionesService {
     });
   }
 
+  // =========================================================
+  // ACTUALIZAR
+  // =========================================================
+
   async update(id: number, dto: UpdateInscripcionDto) {
     const inscripcion = await this.findOne(id);
 
     let nuevoGrupoId: number | undefined;
 
-    if (dto.carreraId !== undefined) {
+    // =======================================================
+    // CAMBIO DE CARRERA
+    // =======================================================
+
+    if (
+      dto.carreraId !== undefined &&
+      dto.carreraId !== inscripcion.carreraId
+    ) {
+      /*
+        Una vez calificado el examen, cambiar
+        carrera/grupo alteraría las reglas con
+        las que debería interpretarse el resultado.
+      */
+
+      if (inscripcion.resultado) {
+        throw new BadRequestException(
+          'No se puede cambiar la carrera de una inscripción que ya tiene un resultado procesado',
+        );
+      }
+
       const carrera = await this.prisma.carrera.findUnique({
         where: {
           id: dto.carreraId,
@@ -247,6 +329,24 @@ export class InscripcionesService {
       }
 
       nuevoGrupoId = carrera.grupoId;
+    }
+
+    // =======================================================
+    // REACTIVACIÓN
+    // =======================================================
+
+    if (dto.estado === true && !inscripcion.estado) {
+      if (!inscripcion.alumno.estado) {
+        throw new BadRequestException(
+          'No se puede reactivar la inscripción porque el alumno se encuentra inactivo',
+        );
+      }
+
+      if (!inscripcion.carrera.estado) {
+        throw new BadRequestException(
+          'No se puede reactivar la inscripción porque la carrera se encuentra inactiva',
+        );
+      }
     }
 
     return this.prisma.inscripcion.update({
@@ -270,7 +370,9 @@ export class InscripcionesService {
 
       include: {
         alumno: true,
+
         carrera: true,
+
         grupo: true,
 
         simulacro: {
@@ -282,8 +384,16 @@ export class InscripcionesService {
     });
   }
 
+  // =========================================================
+  // DESACTIVAR
+  // =========================================================
+
   async desactivar(id: number) {
-    await this.findOne(id);
+    const inscripcion = await this.findOne(id);
+
+    if (!inscripcion.estado) {
+      return inscripcion;
+    }
 
     return this.prisma.inscripcion.update({
       where: {

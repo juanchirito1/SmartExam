@@ -1,4 +1,7 @@
-import { ReactNode } from "react";
+"use client";
+
+import { ReactNode, useState } from "react";
+import { Menu } from "lucide-react";
 
 import AuthProvider from "@/components/auth/auth-provider";
 import DashboardGuard from "@/components/auth/dashboard-guard";
@@ -7,6 +10,8 @@ import Sidebar from "@/components/dashboard/sidebar";
 import LogoutButton from "@/components/dashboard/logout-button";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+  const [sidebarAbierto, setSidebarAbierto] = useState(false);
+
   return (
     <AuthProvider>
       <DashboardGuard>
@@ -15,7 +20,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           {/* SIDEBAR */}
           {/* ================================================= */}
 
-          <Sidebar />
+          <Sidebar
+            abierto={sidebarAbierto}
+            onCerrar={() => setSidebarAbierto(false)}
+          />
 
           {/* ================================================= */}
           {/* CONTENIDO PRINCIPAL */}
@@ -24,7 +32,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           <div
             className="
               min-h-screen
-              md:ml-64
+              lg:ml-64
             "
           >
             {/* =============================================== */}
@@ -49,14 +57,43 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 lg:px-8
               "
             >
-              <div>
-                <p className="font-semibold text-slate-900">
-                  Panel Administrativo
-                </p>
+              <div className="flex items-center gap-3">
+                {/* BOTÓN MENÚ MÓVIL */}
 
-                <p className="mt-0.5 text-xs text-slate-500">
-                  Sistema de evaluación académica
-                </p>
+                <button
+                  type="button"
+                  onClick={() => setSidebarAbierto(true)}
+                  aria-label="Abrir menú"
+                  className="
+                    flex
+                    h-10
+                    w-10
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-xl
+                    border
+                    border-slate-200
+                    bg-white
+                    text-slate-600
+                    transition
+                    hover:bg-slate-50
+                    hover:text-slate-900
+                    lg:hidden
+                  "
+                >
+                  <Menu className="h-5 w-5" />
+                </button>
+
+                <div>
+                  <p className="font-semibold text-slate-900">
+                    Panel Administrativo
+                  </p>
+
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    Sistema de evaluación académica
+                  </p>
+                </div>
               </div>
 
               <LogoutButton />

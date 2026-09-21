@@ -16,10 +16,7 @@ interface AlumnoExcel {
 export interface AlumnoPreview extends AlumnoExcel {
   valido: boolean;
 
-  estado:
-    | 'VALIDO'
-    | 'DUPLICADO'
-    | 'ERROR';
+  estado: 'VALIDO' | 'DUPLICADO' | 'ERROR';
 
   observacion: string | null;
 }
@@ -33,17 +30,80 @@ export class AlumnosExcelService {
       return '';
     }
 
-    if (typeof valor === 'object' && valor !== null && 'text' in valor) {
-      return String(
-        (
-          valor as {
-            text?: unknown;
-          }
-        ).text ?? '',
-      ).trim();
+    if (
+      typeof valor === 'string' ||
+      typeof valor === 'number' ||
+      typeof valor === 'boolean'
+    ) {
+      return String(valor).trim();
+    }
+
+    if (typeof valor === 'object') {
+      const objeto = valor as {
+        text?: unknown;
+
+        richText?: {
+          text?: unknown;
+        }[];
+
+        result?: unknown;
+      };
+
+      /*
+      Excel puede devolver algunas celdas
+      como texto enriquecido.
+    */
+      if (Array.isArray(objeto.richText)) {
+        return objeto.richText
+          .map((item) => (item.text !== undefined ? String(item.text) : ''))
+          .join('')
+          .trim();
+      }
+
+      /*
+      Hipervínculos y otros tipos de celda
+      pueden venir con propiedad text.
+    */
+      if (objeto.text !== undefined) {
+        return this.obtenerTexto(objeto.text);
+      }
+
+      /*
+      Las celdas con fórmula pueden devolver
+      su contenido mediante result.
+    */
+      if (objeto.result !== undefined) {
+        return this.obtenerTexto(objeto.result);
+      }
     }
 
     return String(valor).trim();
+  }
+
+  private normalizarEncabezado(valor: unknown): string {
+    return (
+      this.obtenerTexto(valor)
+        /*
+      Elimina BOM invisible.
+    */
+        .replace(/\uFEFF/g, '')
+
+        /*
+      Convierte espacios especiales de Excel
+      en espacios normales.
+    */
+        .replace(/\u00A0/g, ' ')
+
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+
+        /*
+      Compacta espacios duplicados.
+    */
+        .replace(/\s+/g, ' ')
+    );
   }
 
   private normalizarCorreo(correo: string) {
@@ -96,27 +156,44 @@ export class AlumnosExcelService {
     const encabezados = hoja.getRow(1);
 
     const columnas = [
-      this.obtenerTexto(encabezados.getCell(1).value).toLowerCase(),
+      this.normalizarEncabezado(encabezados.getCell(1).value),
 
-      this.obtenerTexto(encabezados.getCell(2).value).toLowerCase(),
+      this.normalizarEncabezado(encabezados.getCell(2).value),
 
-      this.obtenerTexto(encabezados.getCell(3).value).toLowerCase(),
+      this.normalizarEncabezado(encabezados.getCell(3).value),
 
-      this.obtenerTexto(encabezados.getCell(4).value).toLowerCase(),
+      this.normalizarEncabezado(encabezados.getCell(4).value),
 
-      this.obtenerTexto(encabezados.getCell(5).value).toLowerCase(),
+      this.normalizarEncabezado(encabezados.getCell(5).value),
     ];
 
-    const esperadas = ['dni', 'nombres', 'apellidos', 'telefono', 'correo'];
+    const esperadas = [
+      {
+        valor: 'dni',
+        etiqueta: 'DNI',
+      },
+      {
+        valor: 'nombres',
+        etiqueta: 'Nombres',
+      },
+      {
+        valor: 'apellidos',
+        etiqueta: 'Apellidos',
+      },
+      {
+        valor: 'telefono',
+        etiqueta: 'Telefono',
+      },
+      {
+        valor: 'correo',
+        etiqueta: 'Correo',
+      },
+    ];
 
     for (let i = 0; i < esperadas.length; i++) {
-      const actual = columnas[i]
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '');
-
-      if (actual !== esperadas[i]) {
+      if (columnas[i] !== esperadas[i].valor) {
         throw new BadRequestException(
-          `La columna ${i + 1} debe llamarse "${esperadas[i]}".`,
+          `La columna ${i + 1} debe llamarse "${esperadas[i].etiqueta}".`,
         );
       }
     }

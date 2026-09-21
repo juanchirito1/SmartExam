@@ -86,9 +86,7 @@ export default function AlumnosPage() {
           return;
         }
 
-        await api.patch(`/alumnos/${alumno.id}`, {
-          estado: true,
-        });
+        await api.patch(`/alumnos/${alumno.id}/reactivar`);
       }
 
       await cargarAlumnos();
@@ -97,56 +95,6 @@ export default function AlumnosPage() {
     }
   }
 
-  const alumnosFiltrados = alumnos.filter((alumno) => {
-    const texto = `${alumno.dni} ${alumno.nombres} ${alumno.apellidos} ${
-      alumno.correo ?? ""
-    }`.toLowerCase();
-
-    return texto.includes(search.trim().toLowerCase());
-  });
-
-  if (cargando) {
-    return <div className="p-10">Cargando alumnos...</div>;
-  }
-
-  return (
-    <div className="space-y-6">
-      <AlumnoHeader />
-
-      <AlumnoToolbar
-        search={search}
-        setSearch={setSearch}
-        onNuevoAlumno={() => {
-          /*
-      Aquí conserva exactamente
-      lo que ya tenías.
-    */
-        }}
-        onImportarExcel={() => setExcelAbierto(true)}
-        onExportarExcel={exportarExcel}
-        exportando={exportandoExcel}
-      />
-
-      <AlumnoTable
-        data={alumnosFiltrados}
-        onEditar={editarAlumno}
-        onCambiarEstado={cambiarEstado}
-      />
-
-      <AlumnoDialog
-        open={dialogAbierto}
-        onOpenChange={setDialogAbierto}
-        alumno={alumnoSeleccionado}
-        onSaved={cargarAlumnos}
-      />
-
-      <AlumnoExcelDialog
-        open={excelAbierto}
-        onOpenChange={setExcelAbierto}
-        onImportado={cargarAlumnos}
-      />
-    </div>
-  );
   async function exportarExcel() {
     setExportandoExcel(true);
 
@@ -182,4 +130,50 @@ export default function AlumnosPage() {
       setExportandoExcel(false);
     }
   }
+
+  const alumnosFiltrados = alumnos.filter((alumno) => {
+    const texto = `${alumno.dni} ${alumno.nombres} ${alumno.apellidos} ${
+      alumno.correo ?? ""
+    }`.toLowerCase();
+
+    return texto.includes(search.trim().toLowerCase());
+  });
+
+  if (cargando) {
+    return <div className="p-10">Cargando alumnos...</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <AlumnoHeader />
+
+      <AlumnoToolbar
+        search={search}
+        setSearch={setSearch}
+        onNuevoAlumno={nuevoAlumno}
+        onImportarExcel={() => setExcelAbierto(true)}
+        onExportarExcel={exportarExcel}
+        exportando={exportandoExcel}
+      />
+
+      <AlumnoTable
+        data={alumnosFiltrados}
+        onEditar={editarAlumno}
+        onCambiarEstado={cambiarEstado}
+      />
+
+      <AlumnoDialog
+        open={dialogAbierto}
+        onOpenChange={setDialogAbierto}
+        alumno={alumnoSeleccionado}
+        onSaved={cargarAlumnos}
+      />
+
+      <AlumnoExcelDialog
+        open={excelAbierto}
+        onOpenChange={setExcelAbierto}
+        onImportado={cargarAlumnos}
+      />
+    </div>
+  );
 }

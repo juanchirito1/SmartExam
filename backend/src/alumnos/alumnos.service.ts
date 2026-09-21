@@ -11,22 +11,17 @@ import { UpdateAlumnoDto } from './dto/update-alumno.dto.js';
 
 @Injectable()
 export class AlumnosService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateAlumnoDto) {
-    const alumnoExistente =
-      await this.prisma.alumno.findUnique({
-        where: {
-          dni: dto.dni.trim(),
-        },
-      });
+    const alumnoExistente = await this.prisma.alumno.findUnique({
+      where: {
+        dni: dto.dni.trim(),
+      },
+    });
 
     if (alumnoExistente) {
-      throw new ConflictException(
-        'Ya existe un alumno registrado con ese DNI',
-      );
+      throw new ConflictException('Ya existe un alumno registrado con ese DNI');
     }
 
     return this.prisma.alumno.create({
@@ -54,60 +49,45 @@ export class AlumnosService {
   }
 
   async findOne(id: number) {
-    const alumno =
-      await this.prisma.alumno.findUnique({
-        where: {
-          id,
-        },
-      });
+    const alumno = await this.prisma.alumno.findUnique({
+      where: {
+        id,
+      },
+    });
 
     if (!alumno) {
-      throw new NotFoundException(
-        'Alumno no encontrado',
-      );
+      throw new NotFoundException('Alumno no encontrado');
     }
 
     return alumno;
   }
 
   async findByDni(dni: string) {
-    const alumno =
-      await this.prisma.alumno.findUnique({
-        where: {
-          dni,
-        },
-      });
+    const alumno = await this.prisma.alumno.findUnique({
+      where: {
+        dni: dni.trim(),
+      },
+    });
 
     if (!alumno) {
-      throw new NotFoundException(
-        'Alumno no encontrado',
-      );
+      throw new NotFoundException('Alumno no encontrado');
     }
 
     return alumno;
   }
 
-  async update(
-    id: number,
-    dto: UpdateAlumnoDto,
-  ) {
+  async update(id: number, dto: UpdateAlumnoDto) {
     await this.findOne(id);
 
     if (dto.dni !== undefined) {
-      const alumnoConDni =
-        await this.prisma.alumno.findUnique({
-          where: {
-            dni: dto.dni.trim(),
-          },
-        });
+      const alumnoConDni = await this.prisma.alumno.findUnique({
+        where: {
+          dni: dto.dni.trim(),
+        },
+      });
 
-      if (
-        alumnoConDni &&
-        alumnoConDni.id !== id
-      ) {
-        throw new ConflictException(
-          'El DNI ya pertenece a otro alumno',
-        );
+      if (alumnoConDni && alumnoConDni.id !== id) {
+        throw new ConflictException('El DNI ya pertenece a otro alumno');
       }
     }
 
@@ -154,6 +134,20 @@ export class AlumnosService {
 
       data: {
         estado: false,
+      },
+    });
+  }
+
+  async reactivar(id: number) {
+    await this.findOne(id);
+
+    return this.prisma.alumno.update({
+      where: {
+        id,
+      },
+
+      data: {
+        estado: true,
       },
     });
   }

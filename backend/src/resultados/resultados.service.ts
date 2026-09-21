@@ -5,11 +5,16 @@ import {
 } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service.js';
+
 import { CalificarExamenDto } from './dto/calificar-examen.dto.js';
 
 @Injectable()
 export class ResultadosService {
   constructor(private readonly prisma: PrismaService) {}
+
+  // =========================================================
+  // VALIDAR MARCAS
+  // =========================================================
 
   private validarMarcas(marcas: string[]) {
     const permitidas = ['A', 'B', 'C', 'D', 'E'];
@@ -24,14 +29,20 @@ export class ResultadosService {
       }
     }
 
-    const unicas = [...new Set(normalizadas)];
-
-    return unicas;
+    return [...new Set(normalizadas)];
   }
+
+  // =========================================================
+  // REDONDEO
+  // =========================================================
 
   private redondear(valor: number) {
     return Math.round(valor * 100) / 100;
   }
+
+  // =========================================================
+  // CALIFICAR
+  // =========================================================
 
   async calificar(dto: CalificarExamenDto) {
     // =====================================================
@@ -45,8 +56,11 @@ export class ResultadosService {
 
       include: {
         alumno: true,
+
         carrera: true,
+
         grupo: true,
+
         simulacro: true,
       },
     });
@@ -57,6 +71,24 @@ export class ResultadosService {
 
     if (!inscripcion.estado) {
       throw new BadRequestException('La inscripción se encuentra inactiva');
+    }
+
+    if (!inscripcion.alumno.estado) {
+      throw new BadRequestException('El alumno se encuentra inactivo');
+    }
+
+    /*
+      La calificación solo debe cambiar
+      mientras el simulacro está activo.
+
+      Esto también protege una llamada directa
+      al endpoint de resultados, no únicamente OMR.
+    */
+
+    if (inscripcion.simulacro.estado !== 'ACTIVO') {
+      throw new BadRequestException(
+        'Solo se pueden procesar resultados de un simulacro activo',
+      );
     }
 
     // =====================================================
@@ -81,6 +113,33 @@ export class ResultadosService {
       throw new BadRequestException(
         `La clave del simulacro está incompleta. Se esperaban ${inscripcion.simulacro.totalPreguntas} preguntas y existen ${preguntas.length}`,
       );
+    }
+
+    /*
+      No basta con tener 80 registros.
+
+      Deben ser exactamente:
+      1,2,3,...,80
+    */
+
+    for (let indice = 0; indice < preguntas.length; indice++) {
+      const numeroEsperado = indice + 1;
+
+      if (preguntas[indice].numero !== numeroEsperado) {
+        throw new BadRequestException(
+          `La clave del simulacro es inconsistente. Se esperaba la pregunta ${numeroEsperado}`,
+        );
+      }
+
+      const respuestaCorrecta = preguntas[indice].respuestaCorrecta
+        .trim()
+        .toUpperCase();
+
+      if (!['A', 'B', 'C', 'D', 'E'].includes(respuestaCorrecta)) {
+        throw new BadRequestException(
+          `La pregunta ${numeroEsperado} contiene una respuesta correcta inválida`,
+        );
+      }
     }
 
     // =====================================================
@@ -116,7 +175,7 @@ export class ResultadosService {
     }
 
     // =====================================================
-    // 4. REGLAS DE PUNTAJE DEL GRUPO
+    // 4. REGLAS DE PUNTAJE
     // =====================================================
 
     const reglas = await this.prisma.reglaPuntaje.findMany({
@@ -142,17 +201,24 @@ export class ResultadosService {
     );
 
     let puntajeTotal = 0;
+
     let puntajeMaximo = 0;
 
     let correctas = 0;
+
     let incorrectas = 0;
+
     let blancas = 0;
+
     let dobles = 0;
 
     const detalles: {
       preguntaId: number;
+
       respuestaMarcada: string | null;
+
       tipo: string;
+
       puntajeObtenido: number;
     }[] = [];
 
@@ -176,10 +242,15 @@ export class ResultadosService {
       const marcas = this.validarMarcas(respuesta.marcas);
 
       let tipo: string;
+
       let puntajeObtenido: number;
+
       let respuestaMarcada: string | null;
 
+      // ===================================================
       // BLANCO
+      // ===================================================
+
       if (marcas.length === 0) {
         tipo = 'BLANCO';
 
@@ -190,7 +261,9 @@ export class ResultadosService {
         blancas++;
       }
 
-      // DOBLE / MÚLTIPLE
+      // ===================================================
+      // DOBLE
+      // ===================================================
       else if (marcas.length > 1) {
         tipo = 'DOBLE';
 
@@ -201,11 +274,15 @@ export class ResultadosService {
         dobles++;
       }
 
-      // UNA SOLA MARCA
+      // ===================================================
+      // MARCA ÚNICA
+      // ===================================================
       else {
         respuestaMarcada = marcas[0];
 
-        if (respuestaMarcada === pregunta.respuestaCorrecta) {
+        if (
+          respuestaMarcada === pregunta.respuestaCorrecta.trim().toUpperCase()
+        ) {
           tipo = 'CORRECTA';
 
           puntajeObtenido = regla.puntajeCorrecta;
@@ -249,11 +326,17 @@ export class ResultadosService {
 
         update: {
           puntajeTotal,
+
           correctas,
+
           incorrectas,
+
           blancas,
+
           dobles,
+
           estado: 'PROCESADO',
+
           procesadoEn: new Date(),
         },
 
@@ -261,10 +344,15 @@ export class ResultadosService {
           inscripcionId: inscripcion.id,
 
           puntajeTotal,
+
           correctas,
+
           incorrectas,
+
           blancas,
+
           dobles,
+
           estado: 'PROCESADO',
         },
       });
@@ -291,7 +379,9 @@ export class ResultadosService {
 
       alumno: {
         id: inscripcion.alumno.id,
+
         dni: inscripcion.alumno.dni,
+
         nombre: `${inscripcion.alumno.nombres} ${inscripcion.alumno.apellidos}`,
       },
 
@@ -302,18 +392,22 @@ export class ResultadosService {
       simulacroId: inscripcion.simulacroId,
 
       correctas,
+
       incorrectas,
+
       blancas,
+
       dobles,
 
       puntajeTotal,
+
       puntajeMaximo,
     };
   }
 
-  // =====================================================
+  // =========================================================
   // RESULTADO POR INSCRIPCIÓN
-  // =====================================================
+  // =========================================================
 
   async findByInscripcion(inscripcionId: number) {
     const resultado = await this.prisma.resultado.findUnique({
@@ -325,8 +419,11 @@ export class ResultadosService {
         inscripcion: {
           include: {
             alumno: true,
+
             carrera: true,
+
             grupo: true,
+
             simulacro: true,
           },
         },
@@ -356,16 +453,24 @@ export class ResultadosService {
     return resultado;
   }
 
-  // =====================================================
+  // =========================================================
   // RANKING POR CARRERA
-  // =====================================================
+  // =========================================================
 
-  async rankingCarrera(simulacroId: number, carreraId: number) {
+  async rankingCarrera(
+    simulacroId: number,
+
+    carreraId: number,
+  ) {
     const resultados = await this.prisma.resultado.findMany({
       where: {
+        estado: 'PROCESADO',
+
         inscripcion: {
           simulacroId,
+
           carreraId,
+
           estado: true,
         },
       },
@@ -374,7 +479,9 @@ export class ResultadosService {
         inscripcion: {
           include: {
             alumno: true,
+
             carrera: true,
+
             grupo: true,
           },
         },
@@ -415,20 +522,20 @@ export class ResultadosService {
       puntaje: resultado.puntajeTotal,
     }));
   }
+
+  // =========================================================
+  // RESUMEN
+  // =========================================================
+
   async resumenSimulacro(simulacroId: number) {
     const resultados = await this.prisma.resultado.findMany({
       where: {
+        estado: 'PROCESADO',
+
         inscripcion: {
           simulacroId,
-          estado: true,
-        },
-      },
 
-      include: {
-        inscripcion: {
-          include: {
-            simulacro: true,
-          },
+          estado: true,
         },
       },
     });
@@ -437,9 +544,11 @@ export class ResultadosService {
       throw new NotFoundException('No existen resultados para este simulacro');
     }
 
-    const puntajes = resultados.map((r) => r.puntajeTotal);
+    const puntajes = resultados.map((resultado) => resultado.puntajeTotal);
 
-    const promedio = puntajes.reduce((a, b) => a + b, 0) / puntajes.length;
+    const promedio =
+      puntajes.reduce((acumulado, puntaje) => acumulado + puntaje, 0) /
+      puntajes.length;
 
     return {
       simulacroId,
@@ -453,11 +562,19 @@ export class ResultadosService {
       menorPuntaje: Math.min(...puntajes),
     };
   }
+
+  // =========================================================
+  // RANKING GENERAL
+  // =========================================================
+
   async rankingGeneral(simulacroId: number) {
     const resultados = await this.prisma.resultado.findMany({
       where: {
+        estado: 'PROCESADO',
+
         inscripcion: {
           simulacroId,
+
           estado: true,
         },
       },
@@ -466,7 +583,9 @@ export class ResultadosService {
         inscripcion: {
           include: {
             alumno: true,
+
             carrera: true,
+
             grupo: true,
           },
         },
@@ -476,6 +595,7 @@ export class ResultadosService {
         {
           puntajeTotal: 'desc',
         },
+
         {
           correctas: 'desc',
         },
@@ -510,12 +630,21 @@ export class ResultadosService {
       puntaje: resultado.puntajeTotal,
     }));
   }
+
+  // =========================================================
+  // ESTADÍSTICAS POR ÁREA
+  // =========================================================
+
   async estadisticasArea(simulacroId: number) {
     const detalles = await this.prisma.detalleResultado.findMany({
       where: {
         resultado: {
+          estado: 'PROCESADO',
+
           inscripcion: {
             simulacroId,
+
+            estado: true,
           },
         },
       },
@@ -529,7 +658,17 @@ export class ResultadosService {
       },
     });
 
-    const areas = new Map();
+    const areas = new Map<
+      string,
+      {
+        area: string;
+        total: number;
+        correctas: number;
+        incorrectas: number;
+        blancas: number;
+        dobles: number;
+      }
+    >();
 
     for (const detalle of detalles) {
       const nombreArea = detalle.pregunta.area.nombre;
@@ -537,14 +676,20 @@ export class ResultadosService {
       if (!areas.has(nombreArea)) {
         areas.set(nombreArea, {
           area: nombreArea,
+
           total: 0,
+
           correctas: 0,
+
           incorrectas: 0,
+
           blancas: 0,
+
+          dobles: 0,
         });
       }
 
-      const item = areas.get(nombreArea);
+      const item = areas.get(nombreArea)!;
 
       item.total++;
 
@@ -559,6 +704,10 @@ export class ResultadosService {
       if (detalle.tipo === 'BLANCO') {
         item.blancas++;
       }
+
+      if (detalle.tipo === 'DOBLE') {
+        item.dobles++;
+      }
     }
 
     return Array.from(areas.values()).map((item) => ({
@@ -572,7 +721,12 @@ export class ResultadosService {
 
       blancas: item.blancas,
 
-      rendimiento: this.redondear((item.correctas / item.total) * 100),
+      dobles: item.dobles,
+
+      rendimiento:
+        item.total > 0
+          ? this.redondear((item.correctas / item.total) * 100)
+          : 0,
     }));
   }
 }
