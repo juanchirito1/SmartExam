@@ -162,22 +162,29 @@ export default function UsuarioDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>
+      <DialogContent
+        className="
+    max-h-[90vh]
+    w-[calc(100%-2rem)]
+    overflow-y-auto
+    sm:max-w-xl
+  "
+      >
+        <DialogHeader className="border-b border-slate-100 pb-4">
+          <DialogTitle className="text-xl font-bold text-slate-900">
             {editando ? "Editar usuario" : "Nuevo usuario"}
           </DialogTitle>
 
-          <DialogDescription>
+          <DialogDescription className="text-slate-500">
             {editando
-              ? "Modifica los datos y el acceso del usuario."
-              : "Registra un nuevo usuario del sistema."}
+              ? "Actualiza los datos, rol o contraseña de esta cuenta."
+              : "Crea una nueva cuenta de acceso para SmartExam."}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={guardar} className="space-y-4">
+        <form onSubmit={guardar} className="space-y-5 pt-2">
           <div className="space-y-2">
-            <Label htmlFor="nombre">Nombre</Label>
+            <Label htmlFor="nombre">Nombre completo</Label>
 
             <Input
               id="nombre"
@@ -185,11 +192,12 @@ export default function UsuarioDialog({
               onChange={(e) => setNombre(e.target.value)}
               placeholder="Nombre del usuario"
               required
+              className="h-10"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="correo">Correo</Label>
+            <Label htmlFor="correo">Correo electrónico</Label>
 
             <Input
               id="correo"
@@ -198,6 +206,7 @@ export default function UsuarioDialog({
               onChange={(e) => setCorreo(e.target.value)}
               placeholder="usuario@smartexam.com"
               required
+              className="h-10"
             />
           </div>
 
@@ -209,7 +218,19 @@ export default function UsuarioDialog({
               value={rolId}
               onChange={(e) => setRolId(e.target.value)}
               required
-              className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+              className="
+              h-10
+              w-full
+              rounded-lg
+              border
+              border-slate-200
+              bg-white
+              px-3
+              text-sm
+              text-slate-700
+              outline-none
+              focus:border-blue-500
+            "
             >
               <option value="">Seleccione un rol</option>
 
@@ -219,6 +240,10 @@ export default function UsuarioDialog({
                 </option>
               ))}
             </select>
+
+            <p className="text-xs text-slate-400">
+              Los permisos efectivos dependen del rol asignado.
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -233,25 +258,47 @@ export default function UsuarioDialog({
               onChange={(e) => setPassword(e.target.value)}
               placeholder={
                 editando
-                  ? "Déjalo vacío para mantener la actual"
-                  : "Ingrese una contraseña"
+                  ? "Déjalo vacío para conservar la contraseña actual"
+                  : "Ingrese una contraseña segura"
               }
               required={!editando}
+              className="h-10"
             />
+
+            {editando && (
+              <p className="text-xs text-slate-400">
+                Completa este campo únicamente si deseas cambiar la contraseña.
+              </p>
+            )}
           </div>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
 
-          <DialogFooter>
+          <DialogFooter className="border-t border-slate-100 pt-5">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              className="rounded-xl"
             >
               Cancelar
             </Button>
 
-            <Button type="submit" disabled={guardando}>
+            <Button
+              type="submit"
+              disabled={guardando}
+              className="
+              rounded-xl
+              bg-blue-600
+              px-5
+              text-white
+              hover:bg-blue-700
+            "
+            >
               {guardando && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 
               {guardando

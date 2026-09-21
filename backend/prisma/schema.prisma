@@ -18,6 +18,10 @@ model Usuario {
 
   rolId Int
   rol   Rol @relation(fields: [rolId], references: [id])
+
+  permisosTemporales UsuarioPermisoTemporal[] @relation("UsuarioPermisosTemporales")
+
+  permisosTemporalesAsignados UsuarioPermisoTemporal[] @relation("UsuarioAsignadorPermisos")
 }
 
 model Rol {
@@ -33,6 +37,8 @@ model Permiso {
   nombre String @unique
 
   roles RolPermiso[]
+
+  usuariosTemporales UsuarioPermisoTemporal[]
 }
 
 model RolPermiso {
@@ -212,4 +218,28 @@ model DetalleResultado {
   pregunta   Pregunta @relation(fields: [preguntaId], references: [id])
 
   @@unique([resultadoId, preguntaId])
+}
+
+model UsuarioPermisoTemporal {
+  id Int @id @default(autoincrement())
+
+  usuarioId     Int
+  permisoId     Int
+  asignadoPorId Int?
+
+  fechaInicio DateTime @default(now())
+  fechaFin    DateTime
+
+  estado Boolean @default(true)
+
+  creadoEn DateTime @default(now())
+
+  usuario Usuario @relation("UsuarioPermisosTemporales", fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  permiso Permiso @relation(fields: [permisoId], references: [id], onDelete: Cascade)
+
+  asignadoPor Usuario? @relation("UsuarioAsignadorPermisos", fields: [asignadoPorId], references: [id], onDelete: SetNull)
+
+  @@index([usuarioId, estado, fechaFin])
+  @@index([permisoId])
 }

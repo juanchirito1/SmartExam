@@ -22,10 +22,15 @@ export default function LogoutButton() {
       type="button"
       variant="ghost"
       onClick={cerrarSesion}
-      className="text-red-600 hover:text-red-700"
+      className="
+        gap-2
+        text-slate-500
+        hover:bg-red-50
+        hover:text-red-600
+      "
     >
-      <LogOut className="mr-2 h-4 w-4" />
-      Cerrar sesión
+      <LogOut className="h-4 w-4" />
+      <span className="hidden sm:inline">Cerrar sesión</span>
     </Button>
   );
 }

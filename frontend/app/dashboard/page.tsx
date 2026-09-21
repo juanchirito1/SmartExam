@@ -8,6 +8,13 @@ import PerformanceChart from "@/components/dashboard/performance-chart";
 import AreaChartDashboard from "@/components/dashboard/area-chart";
 import RankingTable from "@/components/dashboard/ranking-table";
 
+import {
+  Users,
+  ClipboardList,
+  ScanLine,
+  TrendingUp,
+} from "lucide-react";
+
 interface Resumen {
   totalAlumnos: number;
   totalSimulacros: number;
@@ -81,14 +88,34 @@ export default function DashboardPage() {
         <p className="text-muted-foreground">Resumen académico general</p>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard title="Total alumnos" value={resumen.totalAlumnos} />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+        <StatCard
+          title="Total alumnos"
+          value={resumen.totalAlumnos}
+          description="Alumnos registrados"
+          icon={Users}
+        />
 
-        <StatCard title="Simulacros" value={resumen.totalSimulacros} />
+        <StatCard
+          title="Simulacros"
+          value={resumen.totalSimulacros}
+          description="Evaluaciones registradas"
+          icon={ClipboardList}
+        />
 
-        <StatCard title="Fichas procesadas" value={resumen.fichasProcesadas} />
+        <StatCard
+          title="Fichas procesadas"
+          value={resumen.fichasProcesadas}
+          description="Lecturas OMR completadas"
+          icon={ScanLine}
+        />
 
-        <StatCard title="Promedio general" value={resumen.promedioGeneral} />
+        <StatCard
+          title="Promedio general"
+          value={resumen.promedioGeneral}
+          description="Rendimiento acumulado"
+          icon={TrendingUp}
+        />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">

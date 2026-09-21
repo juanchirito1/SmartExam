@@ -130,20 +130,27 @@ export default function AlumnoDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>
+      <DialogContent
+        className="
+    max-h-[90vh]
+    w-[calc(100%-2rem)]
+    overflow-y-auto
+    sm:max-w-xl
+  "
+      >
+        <DialogHeader className="border-b border-slate-100 pb-4">
+          <DialogTitle className="text-xl font-bold text-slate-900">
             {editando ? "Editar alumno" : "Registrar alumno"}
           </DialogTitle>
 
-          <DialogDescription>
+          <DialogDescription className="text-slate-500">
             {editando
-              ? "Modifica los datos del alumno seleccionado."
-              : "Ingresa los datos del nuevo alumno."}
+              ? "Actualiza la información del alumno seleccionado."
+              : "Completa la información para registrar un nuevo alumno."}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={guardarAlumno} className="space-y-4">
+        <form onSubmit={guardarAlumno} className="space-y-5 pt-2">
           <div className="space-y-2">
             <Label htmlFor="dni">DNI</Label>
 
@@ -152,8 +159,9 @@ export default function AlumnoDialog({
               value={dni}
               onChange={(e) => setDni(e.target.value)}
               maxLength={8}
-              placeholder="Ingrese DNI"
+              placeholder="Ingrese los 8 dígitos"
               required
+              className="h-10"
             />
           </div>
 
@@ -165,7 +173,9 @@ export default function AlumnoDialog({
                 id="nombres"
                 value={nombres}
                 onChange={(e) => setNombres(e.target.value)}
+                placeholder="Nombres del alumno"
                 required
+                className="h-10"
               />
             </div>
 
@@ -176,7 +186,9 @@ export default function AlumnoDialog({
                 id="apellidos"
                 value={apellidos}
                 onChange={(e) => setApellidos(e.target.value)}
+                placeholder="Apellidos del alumno"
                 required
+                className="h-10"
               />
             </div>
           </div>
@@ -189,29 +201,46 @@ export default function AlumnoDialog({
                 id="telefono"
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
+                placeholder="Número de contacto"
+                className="h-10"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="correo">Correo</Label>
+              <Label htmlFor="correo">Correo electrónico</Label>
 
               <Input
                 id="correo"
                 type="email"
                 value={correo}
                 onChange={(e) => setCorreo(e.target.value)}
+                placeholder="correo@ejemplo.com"
+                className="h-10"
               />
             </div>
           </div>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={cerrar}>
+          <DialogFooter className="border-t border-slate-100 pt-5">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="rounded-xl"
+            >
               Cancelar
             </Button>
 
-            <Button type="submit" disabled={guardando}>
+            <Button
+              type="submit"
+              disabled={guardando}
+              className="rounded-xl bg-blue-600 px-5 text-white hover:bg-blue-700"
+            >
               {guardando && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 
               {guardando

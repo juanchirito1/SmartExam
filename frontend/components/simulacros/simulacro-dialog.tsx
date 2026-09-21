@@ -147,23 +147,30 @@ export default function SimulacroDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>
+      <DialogContent
+        className="
+    max-h-[90vh]
+    w-[calc(100%-2rem)]
+    overflow-y-auto
+    sm:max-w-xl
+  "
+      >
+        <DialogHeader className="border-b border-slate-100 pb-4">
+          <DialogTitle className="text-xl font-bold text-slate-900">
             {editando ? "Editar simulacro" : "Nuevo simulacro"}
           </DialogTitle>
 
-          <DialogDescription>
+          <DialogDescription className="text-slate-500">
             {editando
-              ? "Modifica la configuración del simulacro."
-              : "Registra un nuevo simulacro académico."}
+              ? "Actualiza la configuración de esta evaluación."
+              : "Configura una nueva evaluación académica."}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={guardar} className="space-y-4">
+        <form onSubmit={guardar} className="space-y-5 pt-2">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="numero">Número</Label>
+              <Label htmlFor="numero">Número de simulacro</Label>
 
               <Input
                 id="numero"
@@ -172,11 +179,12 @@ export default function SimulacroDialog({
                 value={numero}
                 onChange={(e) => setNumero(e.target.value)}
                 required
+                className="h-10"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="fecha">Fecha</Label>
+              <Label htmlFor="fecha">Fecha de evaluación</Label>
 
               <Input
                 id="fecha"
@@ -184,12 +192,13 @@ export default function SimulacroDialog({
                 value={fecha}
                 onChange={(e) => setFecha(e.target.value)}
                 required
+                className="h-10"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="ciclo">Ciclo</Label>
+            <Label htmlFor="ciclo">Ciclo académico</Label>
 
             <select
               id="ciclo"
@@ -197,7 +206,19 @@ export default function SimulacroDialog({
               onChange={(e) => setCicloId(e.target.value)}
               disabled={editando}
               required
-              className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+              className="
+              h-10
+              w-full
+              rounded-lg
+              border
+              border-slate-200
+              bg-white
+              px-3
+              text-sm
+              text-slate-700
+              outline-none
+              focus:border-blue-500
+            "
             >
               <option value="">Seleccione un ciclo</option>
 
@@ -209,6 +230,12 @@ export default function SimulacroDialog({
                   </option>
                 ))}
             </select>
+
+            {editando && (
+              <p className="text-xs text-slate-400">
+                El ciclo no puede modificarse después de crear el simulacro.
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -222,7 +249,12 @@ export default function SimulacroDialog({
               value={totalPreguntas}
               onChange={(e) => setTotalPreguntas(e.target.value)}
               required
+              className="h-10"
             />
+
+            <p className="text-xs text-slate-400">
+              SmartExam admite evaluaciones de hasta 120 preguntas.
+            </p>
           </div>
 
           {editando && (
@@ -233,29 +265,50 @@ export default function SimulacroDialog({
                 id="estado"
                 value={estado}
                 onChange={(e) => setEstado(e.target.value)}
-                className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+                className="
+                h-10
+                w-full
+                rounded-lg
+                border
+                border-slate-200
+                bg-white
+                px-3
+                text-sm
+                text-slate-700
+                outline-none
+                focus:border-blue-500
+              "
               >
-                <option value="BORRADOR">BORRADOR</option>
+                <option value="BORRADOR">Borrador</option>
 
-                <option value="ACTIVO">ACTIVO</option>
+                <option value="ACTIVO">Activo</option>
 
-                <option value="FINALIZADO">FINALIZADO</option>
+                <option value="FINALIZADO">Finalizado</option>
               </select>
             </div>
           )}
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
 
-          <DialogFooter>
+          <DialogFooter className="border-t border-slate-100 pt-5">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              className="rounded-xl"
             >
               Cancelar
             </Button>
 
-            <Button type="submit" disabled={guardando}>
+            <Button
+              type="submit"
+              disabled={guardando}
+              className="rounded-xl bg-blue-600 px-5 text-white hover:bg-blue-700"
+            >
               {guardando && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 
               {guardando

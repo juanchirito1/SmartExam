@@ -1,90 +1,87 @@
 import {
- Injectable,
- CanActivate,
- ExecutionContext,
- ForbiddenException,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 
 import { Reflector } from '@nestjs/core';
 
-import { PermissionsService } from '../../permissions/permissions.service.js';
+import { PrismaService } from '../../prisma/prisma.service.js';
 
+import { obtenerPermisosEfectivos } from '../utils/permisos-efectivos.js';
 
 @Injectable()
-export class PermissionsGuard
-implements CanActivate {
+export class PermissionsGuard implements CanActivate {
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly prisma: PrismaService,
+  ) {}
 
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    // =======================================================
+    // PERMISOS REQUERIDOS POR LA RUTA
+    // =======================================================
 
-constructor(
+    const requiredPermissions = this.reflector.get<string[]>(
+      'permissions',
+      context.getHandler(),
+    );
 
- private readonly reflector: Reflector,
+    /*
+      Si la ruta no tiene @Permissions(),
+      no hacemos ninguna validación adicional.
+    */
 
- private readonly permissionsService: PermissionsService,
+    if (!requiredPermissions || requiredPermissions.length === 0) {
+      return true;
+    }
 
-){}
+    // =======================================================
+    // USUARIO AUTENTICADO
+    // =======================================================
 
+    const request = context.switchToHttp().getRequest();
 
+    const user = request.user;
 
-async canActivate(
- context: ExecutionContext
-){
+    if (!user) {
+      throw new UnauthorizedException('Usuario no autenticado');
+    }
 
+    /*
+      Actualmente tu proyecto ya venía usando:
 
- const requiredPermissions =
- this.reflector.get<string[]>(
-   'permissions',
-   context.getHandler()
- );
+      request.user.id
 
+      Lo mantenemos para no romper JwtStrategy.
+    */
 
- // Si la ruta no tiene permisos definidos
- // dejamos pasar
+    const userId = Number(user.id);
 
- if(!requiredPermissions){
+    if (!userId || Number.isNaN(userId)) {
+      throw new UnauthorizedException('Usuario no válido');
+    }
 
-   return true;
+    // =======================================================
+    // PERMISOS EFECTIVOS
+    // =======================================================
 
- }
+    const userPermissions = await obtenerPermisosEfectivos(this.prisma, userId);
 
+    // =======================================================
+    // VALIDAR TODOS LOS PERMISOS REQUERIDOS
+    // =======================================================
 
+    const hasPermission = requiredPermissions.every((permission) =>
+      userPermissions.includes(permission),
+    );
 
- const request =
- context.switchToHttp()
- .getRequest();
+    if (!hasPermission) {
+      throw new ForbiddenException('No tienes permisos suficientes');
+    }
 
-
-
- const user =
- request.user;
-
-
-
- const userPermissions =
- await this.permissionsService
- .getUserPermissions(user.id);
-
-
-
- const hasPermission =
- requiredPermissions.every(
-   permission =>
-   userPermissions.includes(permission)
- );
-
-
- if(!hasPermission){
-
-   throw new ForbiddenException(
-     'No tienes permisos suficientes'
-   );
-
- }
-
-
- return true;
-
-
-}
-
-
+    return true;
+  }
 }

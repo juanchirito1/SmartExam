@@ -7,6 +7,14 @@ import { PrismaModule } from '../prisma/prisma.module.js';
 import { AuthModule } from '../auth/auth.module.js';
 import { PermissionsModule } from '../permissions/permissions.module.js';
 
+import {
+  AlumnosExcelController,
+} from './alumnos-excel.controller.js';
+
+import {
+  AlumnosExcelService,
+} from './alumnos-excel.service.js';
+
 @Module({
   imports: [
     PrismaModule,
@@ -16,10 +24,12 @@ import { PermissionsModule } from '../permissions/permissions.module.js';
 
   controllers: [
     AlumnosController,
+    AlumnosExcelController,
   ],
 
   providers: [
     AlumnosService,
+    AlumnosExcelService,
   ],
 })
 export class AlumnosModule {}

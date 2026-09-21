@@ -8,6 +8,7 @@ import UsuarioHeader from "@/components/usuarios/usuario-header";
 import UsuarioToolbar from "@/components/usuarios/usuario-toolbar";
 import UsuarioTable from "@/components/usuarios/usuario-table";
 import UsuarioDialog from "@/components/usuarios/usuario-dialog";
+import UsuarioPermisosDialog from "@/components/usuarios/usuario-permisos-dialog";
 
 interface Rol {
   id: number;
@@ -40,6 +41,10 @@ export default function UsuariosPage() {
 
   const [usuarioSeleccionado, setUsuarioSeleccionado] =
     useState<Usuario | null>(null);
+
+  const [usuarioPermisos, setUsuarioPermisos] = useState<Usuario | null>(null);
+
+  const [permisosAbiertos, setPermisosAbiertos] = useState(false);
 
   async function cargarDatos() {
     try {
@@ -122,6 +127,15 @@ export default function UsuariosPage() {
         data={usuariosFiltrados}
         onEditar={editarUsuario}
         onCambiarEstado={cambiarEstado}
+        onPermisos={(usuario)=>{
+          setUsuarioPermisos(
+            usuario,
+          );
+
+          setPermisosAbiertos(
+            true,
+          );
+        }}
       />
 
       <UsuarioDialog
@@ -130,6 +144,12 @@ export default function UsuariosPage() {
         usuario={usuarioSeleccionado}
         roles={roles}
         onSaved={cargarDatos}
+      />
+
+      <UsuarioPermisosDialog 
+        open={permisosAbiertos}
+        onOpenChange={setPermisosAbiertos}
+        usuario={usuarioPermisos}
       />
     </div>
   );

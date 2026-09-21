@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle2, KeyRound } from "lucide-react";
 
 import Link from "next/link";
 
@@ -208,6 +208,15 @@ export default function ClaveSimulacroPage() {
     }
   }
 
+  const preguntasCompletadas = preguntas.filter(
+    (pregunta) => pregunta.areaId && pregunta.respuestaCorrecta,
+  ).length;
+
+  const porcentajeCompletado =
+    preguntas.length > 0
+      ? Math.round((preguntasCompletadas / preguntas.length) * 100)
+      : 0;
+
   if (cargando) {
     return <div className="p-10">Cargando clave...</div>;
   }
@@ -217,110 +226,396 @@ export default function ClaveSimulacroPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <div className="mb-3">
-            <Link
-              href="/dashboard/simulacros"
-              className={buttonVariants({
-                variant: "outline",
-                size: "sm",
-              })}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Volver
-            </Link>
+    <div className="space-y-7">
+      {/* ENCABEZADO */}
+
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-start gap-4">
+          <div
+            className="
+            flex
+            h-12
+            w-12
+            shrink-0
+            items-center
+            justify-center
+            rounded-2xl
+            bg-amber-50
+            text-amber-600
+          "
+          >
+            <KeyRound className="h-6 w-6" />
           </div>
 
-          <h1 className="text-2xl font-bold">
-            Clave del Simulacro {simulacro.numero}
-          </h1>
+          <div>
+            <Link
+              href="/dashboard/simulacros"
+              className="mb-2 inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-blue-600"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Volver a simulacros
+            </Link>
 
-          <p className="text-sm text-muted-foreground">
-            Ciclo {simulacro.ciclo.nombre}
-            {" · "}
-            {simulacro.totalPreguntas} preguntas
-          </p>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+              Clave del Simulacro {simulacro.numero}
+            </h1>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Ciclo {simulacro.ciclo.nombre}
+              {" · "}
+              {simulacro.totalPreguntas} preguntas
+            </p>
+          </div>
         </div>
 
-        <Button onClick={guardarClave} disabled={guardando}>
-          <Save className="mr-2 h-4 w-4" />
+        <Button
+          onClick={guardarClave}
+          disabled={guardando}
+          className="
+          h-10
+          gap-2
+          rounded-xl
+          bg-blue-600
+          px-5
+          text-white
+          hover:bg-blue-700
+          sm:w-auto
+        "
+        >
+          <Save className="h-4 w-4" />
 
           {guardando ? "Guardando..." : "Guardar clave"}
         </Button>
       </div>
 
+      {/* RESUMEN */}
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-sm text-slate-500">Total de preguntas</p>
+
+          <p className="mt-2 text-3xl font-bold text-slate-900">
+            {preguntas.length}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-sm text-slate-500">Preguntas configuradas</p>
+
+          <div className="mt-2 flex items-center gap-2">
+            <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+
+            <p className="text-3xl font-bold text-slate-900">
+              {preguntasCompletadas}
+            </p>
+          </div>
+        </div>
+
+        <div className="col-span-2 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:col-span-1">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-slate-500">Progreso</p>
+
+            <span className="text-sm font-semibold text-blue-600">
+              {porcentajeCompletado}%
+            </span>
+          </div>
+
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
+            <div
+              className="h-full rounded-full bg-blue-600 transition-all"
+              style={{
+                width: `${porcentajeCompletado}%`,
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* MENSAJES */}
+
       {error && (
-        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
       {mensaje && (
-        <div className="rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
           {mensaje}
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl border bg-white">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b bg-muted/40">
-              <th className="p-3 text-left">Pregunta</th>
+      {/* CLAVE */}
 
-              <th className="p-3 text-left">Área</th>
+      <div
+        className="
+        overflow-hidden
+        rounded-2xl
+        border
+        border-slate-200
+        bg-white
+        shadow-sm
+      "
+      >
+        <div className="border-b border-slate-100 px-6 py-5">
+          <h2 className="font-semibold text-slate-900">
+            Configuración de respuestas
+          </h2>
 
-              <th className="p-3 text-left">Respuesta correcta</th>
-            </tr>
-          </thead>
+          <p className="mt-1 text-sm text-slate-500">
+            Define el área académica y la alternativa correcta para cada
+            pregunta.
+          </p>
+        </div>
 
-          <tbody>
-            {preguntas.map((pregunta) => (
-              <tr key={pregunta.numero} className="border-b last:border-b-0">
-                <td className="p-3 font-medium">{pregunta.numero}</td>
+        {/* VISTA MÓVIL */}
 
-                <td className="p-3">
-                  <select
-                    value={pregunta.areaId}
-                    onChange={(e) =>
-                      cambiarArea(pregunta.numero, Number(e.target.value))
-                    }
-                    className="h-9 w-full max-w-sm rounded-md border bg-background px-3 text-sm"
+        <div className="divide-y divide-slate-100 md:hidden">
+          {preguntas.map((pregunta) => (
+            <div key={pregunta.numero} className="space-y-4 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="
+              flex
+              h-9
+              w-9
+              items-center
+              justify-center
+              rounded-xl
+              bg-slate-100
+              text-sm
+              font-bold
+              text-slate-700
+            "
                   >
-                    {areas.map((area) => (
-                      <option key={area.id} value={area.id}>
-                        {area.nombre}
-                      </option>
-                    ))}
-                  </select>
-                </td>
+                    {pregunta.numero}
+                  </div>
 
-                <td className="p-3">
-                  <div className="flex gap-2">
-                    {["A", "B", "C", "D", "E"].map((alternativa) => (
-                      <Button
+                  <p className="font-medium text-slate-900">
+                    Pregunta {pregunta.numero}
+                  </p>
+                </div>
+
+                {pregunta.areaId && pregunta.respuestaCorrecta && (
+                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-slate-500">
+                  Área académica
+                </label>
+
+                <select
+                  value={pregunta.areaId}
+                  onChange={(e) =>
+                    cambiarArea(pregunta.numero, Number(e.target.value))
+                  }
+                  className="
+            h-10
+            w-full
+            rounded-lg
+            border
+            border-slate-200
+            bg-white
+            px-3
+            text-sm
+            text-slate-700
+            outline-none
+            focus:border-blue-500
+          "
+                >
+                  {areas.map((area) => (
+                    <option key={area.id} value={area.id}>
+                      {area.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-slate-500">
+                  Respuesta correcta
+                </p>
+
+                <div className="grid grid-cols-5 gap-2">
+                  {["A", "B", "C", "D", "E"].map((alternativa) => {
+                    const seleccionada =
+                      pregunta.respuestaCorrecta === alternativa;
+
+                    return (
+                      <button
                         key={alternativa}
                         type="button"
-                        size="sm"
-                        variant={
-                          pregunta.respuestaCorrecta === alternativa
-                            ? "default"
-                            : "outline"
-                        }
                         onClick={() =>
                           cambiarRespuesta(pregunta.numero, alternativa)
                         }
+                        className={`
+                  flex
+                  h-10
+                  items-center
+                  justify-center
+                  rounded-xl
+                  border
+                  text-sm
+                  font-semibold
+                  transition
+
+                  ${
+                    seleccionada
+                      ? "border-blue-600 bg-blue-600 text-white"
+                      : "border-slate-200 bg-white text-slate-600 hover:bg-blue-50 hover:text-blue-600"
+                  }
+                `}
                       >
                         {alternativa}
-                      </Button>
-                    ))}
-                  </div>
-                </td>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="hidden max-h-[650px] overflow-auto md:block">
+          <table className="w-full">
+            <thead className="sticky top-0 z-10">
+              <tr className="border-b border-slate-200 bg-slate-50">
+                <th className="w-32 px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Pregunta
+                </th>
+
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Área
+                </th>
+
+                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  Respuesta correcta
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {preguntas.map((pregunta) => (
+                <tr
+                  key={pregunta.numero}
+                  className="
+                    border-b
+                    border-slate-100
+                    last:border-0
+                    hover:bg-slate-50/70
+                  "
+                >
+                  <td className="px-6 py-3">
+                    <div
+                      className="
+                        flex
+                        h-9
+                        w-9
+                        items-center
+                        justify-center
+                        rounded-xl
+                        bg-slate-100
+                        text-sm
+                        font-bold
+                        text-slate-700
+                      "
+                    >
+                      {pregunta.numero}
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-3">
+                    <select
+                      value={pregunta.areaId}
+                      onChange={(e) =>
+                        cambiarArea(pregunta.numero, Number(e.target.value))
+                      }
+                      className="
+                        h-9
+                        w-full
+                        max-w-md
+                        rounded-lg
+                        border
+                        border-slate-200
+                        bg-white
+                        px-3
+                        text-sm
+                        text-slate-700
+                        outline-none
+                        focus:border-blue-500
+                      "
+                    >
+                      {areas.map((area) => (
+                        <option key={area.id} value={area.id}>
+                          {area.nombre}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+
+                  <td className="px-6 py-3">
+                    <div className="flex flex-wrap gap-2">
+                      {["A", "B", "C", "D", "E"].map((alternativa) => {
+                        const seleccionada =
+                          pregunta.respuestaCorrecta === alternativa;
+
+                        return (
+                          <button
+                            key={alternativa}
+                            type="button"
+                            onClick={() =>
+                              cambiarRespuesta(pregunta.numero, alternativa)
+                            }
+                            className={`
+                                flex
+                                h-9
+                                w-9
+                                items-center
+                                justify-center
+                                rounded-lg
+                                border
+                                text-sm
+                                font-semibold
+                                transition-all
+
+                                ${
+                                  seleccionada
+                                    ? "border-blue-600 bg-blue-600 text-white shadow-sm"
+                                    : "border-slate-200 bg-white text-slate-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600"
+                                }
+                              `}
+                          >
+                            {alternativa}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* FOOTER */}
+
+        <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/70 px-6 py-4">
+          <p className="text-sm text-slate-500">
+            {preguntasCompletadas} de {preguntas.length} preguntas configuradas
+          </p>
+
+          <Button
+            onClick={guardarClave}
+            disabled={guardando}
+            className="gap-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700"
+          >
+            <Save className="h-4 w-4" />
+            Guardar clave
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -1,26 +1,81 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect } from "react";
 
 import { usePathname, useRouter } from "next/navigation";
 
-import { api } from "@/lib/api";
-
-interface Perfil {
-  id: number;
-  nombre: string;
-  correo: string;
-
-  rol: {
-    id: number;
-    nombre: string;
-  };
-
-  permisos: string[];
-}
+import { useAuth } from "./auth-provider";
 
 interface Props {
   children: ReactNode;
+}
+
+function tieneAcceso(pathname: string, permisos: string[]) {
+  // =========================================================
+  // USUARIOS
+  // =========================================================
+
+  if (pathname.startsWith("/dashboard/usuarios")) {
+    return permisos.includes("GESTIONAR_USUARIOS");
+  }
+
+  // =========================================================
+  // CLAVE DE RESPUESTAS
+  // =========================================================
+
+  if (pathname.includes("/clave")) {
+    return permisos.includes("CREAR_SIMULACRO");
+  }
+
+  // =========================================================
+  // INSCRIPCIONES
+  // =========================================================
+
+  if (pathname.includes("/inscripciones")) {
+    return (
+      permisos.includes("GENERAR_CARNETS") ||
+      permisos.includes("GESTIONAR_INSCRIPCIONES")
+    );
+  }
+
+  // =========================================================
+  // FICHAS OMR
+  // =========================================================
+
+  if (pathname.startsWith("/dashboard/fichas")) {
+    return permisos.includes("PROCESAR_FICHAS");
+  }
+
+  // =========================================================
+  // RESULTADOS
+  // =========================================================
+
+  if (pathname.startsWith("/dashboard/resultados")) {
+    return permisos.includes("VER_RESULTADOS");
+  }
+
+  // =========================================================
+  // ALUMNOS
+  // =========================================================
+
+  if (pathname.startsWith("/dashboard/alumnos")) {
+    return permisos.includes("REGISTRAR_ALUMNOS");
+  }
+
+  // =========================================================
+  // SIMULACROS
+  // =========================================================
+
+  if (pathname === "/dashboard/simulacros") {
+    return (
+      permisos.includes("CREAR_SIMULACRO") ||
+      permisos.includes("GENERAR_CARNETS") ||
+      permisos.includes("GESTIONAR_INSCRIPCIONES")
+    );
+  }
+
+  // Dashboard principal.
+  return true;
 }
 
 export default function DashboardGuard({ children }: Props) {
@@ -28,107 +83,70 @@ export default function DashboardGuard({ children }: Props) {
 
   const pathname = usePathname();
 
-  const [autorizado, setAutorizado] = useState(false);
-
-  const [verificando, setVerificando] = useState(true);
+  const { usuario, permisos, cargando } = useAuth();
 
   useEffect(() => {
-    async function verificar() {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        router.replace("/login");
-
-        return;
-      }
-
-      try {
-        const response = await api.get("/auth/me");
-
-        const perfil: Perfil = response.data;
-
-        const permisos = perfil.permisos;
-
-        let tieneAcceso = true;
-
-        /*
-         * Usuarios
-         */
-        if (pathname.startsWith("/dashboard/usuarios")) {
-          tieneAcceso = permisos.includes("GESTIONAR_USUARIOS");
-        } else if (pathname.includes("/clave")) {
-
-        /*
-         * Clave de respuestas
-         */
-          tieneAcceso = permisos.includes("CREAR_SIMULACRO");
-        } else if (pathname.includes("/inscripciones")) {
-
-        /*
-         * Inscripciones y carnets
-         */
-          tieneAcceso = permisos.includes("GENERAR_CARNETS");
-        } else if (pathname.startsWith("/dashboard/fichas")) {
-
-        /*
-         * Fichas OMR
-         */
-          tieneAcceso = permisos.includes("PROCESAR_FICHAS");
-        } else if (pathname.startsWith("/dashboard/resultados")) {
-
-        /*
-         * Resultados
-         */
-          tieneAcceso = permisos.includes("VER_RESULTADOS");
-        } else if (pathname.startsWith("/dashboard/alumnos")) {
-
-        /*
-         * Alumnos
-         */
-          tieneAcceso = permisos.includes("REGISTRAR_ALUMNOS");
-        } else if (pathname.startsWith("/dashboard/simulacros")) {
-
-        /*
-         * Simulacros
-         */
-          tieneAcceso =
-            permisos.includes("CREAR_SIMULACRO") ||
-            permisos.includes("GENERAR_CARNETS");
-        }
-
-        if (!tieneAcceso) {
-          router.replace("/dashboard");
-
-          return;
-        }
-
-        setAutorizado(true);
-      } catch (error: any) {
-        const status = error.response?.status;
-
-        if (status === 401) {
-          localStorage.removeItem("token");
-
-          router.replace("/login");
-
-          return;
-        }
-
-        console.error("Error verificando acceso", error);
-      } finally {
-        setVerificando(false);
-      }
+    if (cargando) {
+      return;
     }
 
-    verificar();
-  }, [pathname, router]);
+    /*
+      No hay sesión.
+    */
 
-  if (verificando || !autorizado) {
+    if (!usuario) {
+      router.replace("/login");
+
+      return;
+    }
+
+    /*
+      Tiene sesión pero no autorización
+      para esta ruta.
+    */
+
+    if (!tieneAcceso(pathname, permisos)) {
+      router.replace("/dashboard");
+    }
+  }, [cargando, usuario, permisos, pathname, router]);
+
+  if (cargando) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-sm text-muted-foreground">Verificando acceso...</p>
+      <div
+        className="
+          flex
+          min-h-screen
+          items-center
+          justify-center
+          bg-slate-50
+        "
+      >
+        <div className="text-center">
+          <div
+            className="
+              mx-auto
+              h-7
+              w-7
+              animate-spin
+              rounded-full
+              border-2
+              border-slate-200
+              border-t-blue-600
+            "
+          />
+
+          <p className="mt-3 text-sm text-slate-500">Verificando sesión...</p>
+        </div>
       </div>
     );
+  }
+
+  if (!usuario) {
+    return null;
+  }
+
+  if (!tieneAcceso(pathname, permisos)) {
+    return null;
   }
 
   return children;

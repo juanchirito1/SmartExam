@@ -8,6 +8,7 @@ import AlumnoHeader from "@/components/alumnos/alumno-header";
 import AlumnoToolbar from "@/components/alumnos/alumno-toolbar";
 import AlumnoTable from "@/components/alumnos/alumno-table";
 import AlumnoDialog from "@/components/alumnos/alumno-dialog";
+import AlumnoExcelDialog from "@/components/alumnos/alumno-excel-dialog";
 
 interface Alumno {
   id: number;
@@ -31,6 +32,10 @@ export default function AlumnosPage() {
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState<Alumno | null>(
     null,
   );
+
+  const [excelAbierto, setExcelAbierto] = useState(false);
+
+  const [exportandoExcel, setExportandoExcel] = useState(false);
 
   async function cargarAlumnos() {
     try {
@@ -111,7 +116,15 @@ export default function AlumnosPage() {
       <AlumnoToolbar
         search={search}
         setSearch={setSearch}
-        onNuevoAlumno={nuevoAlumno}
+        onNuevoAlumno={() => {
+          /*
+      Aquí conserva exactamente
+      lo que ya tenías.
+    */
+        }}
+        onImportarExcel={() => setExcelAbierto(true)}
+        onExportarExcel={exportarExcel}
+        exportando={exportandoExcel}
       />
 
       <AlumnoTable
@@ -126,6 +139,47 @@ export default function AlumnosPage() {
         alumno={alumnoSeleccionado}
         onSaved={cargarAlumnos}
       />
+
+      <AlumnoExcelDialog
+        open={excelAbierto}
+        onOpenChange={setExcelAbierto}
+        onImportado={cargarAlumnos}
+      />
     </div>
   );
+  async function exportarExcel() {
+    setExportandoExcel(true);
+
+    try {
+      const response = await api.get("/alumnos-excel/exportar", {
+        responseType: "blob",
+      });
+
+      const blob = new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+
+      const enlace = document.createElement("a");
+
+      const fecha = new Date().toISOString().slice(0, 10);
+
+      enlace.href = url;
+
+      enlace.download = `Alumnos_SmartExam_${fecha}.xlsx`;
+
+      document.body.appendChild(enlace);
+
+      enlace.click();
+
+      enlace.remove();
+
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exportando alumnos:", error);
+    } finally {
+      setExportandoExcel(false);
+    }
+  }
 }
