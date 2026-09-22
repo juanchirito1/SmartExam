@@ -9,7 +9,9 @@ import { ConfigService } from '@nestjs/config';
 
 import PDFDocument from 'pdfkit';
 
-import * as nodemailer from 'nodemailer';
+import axios from 'axios';
+
+
 
 import { PrismaService } from '../prisma/prisma.service.js';
 
@@ -292,248 +294,283 @@ export class CarnetsService {
   // =========================================================
 
   async enviarCarnetPorCorreo(inscripcionId: number) {
-    const datos = await this.obtenerDatosCarnet(inscripcionId);
 
-    // =======================================================
-    // VALIDAR CORREO DEL ALUMNO
-    // =======================================================
+  const datos = await this.obtenerDatosCarnet(inscripcionId);
 
-    if (!datos.alumno.correo) {
-      throw new BadRequestException(
-        'El alumno no tiene un correo electrónico registrado.',
-      );
-    }
 
-    // =======================================================
-    // CONFIGURACIÓN SMTP
-    // =======================================================
+  // ==========================================
+  // VALIDAR CORREO
+  // ==========================================
 
-    const smtpHost = this.configService.get<string>('SMTP_HOST');
+  if (!datos.alumno.correo) {
+    throw new BadRequestException(
+      'El alumno no tiene correo registrado.',
+    );
+  }
 
-    const smtpPort = Number(
-      this.configService.get<string>('SMTP_PORT') ?? '587',
+
+
+  // ==========================================
+  // API BREVO
+  // ==========================================
+
+  const apiKey =
+    this.configService.get<string>('BREVO_API_KEY');
+
+
+  if (!apiKey) {
+
+    throw new InternalServerErrorException(
+      'BREVO_API_KEY no configurada.',
     );
 
-    const smtpUser = this.configService.get<string>('SMTP_USER');
-
-    const smtpPass = this.configService.get<string>('SMTP_PASS');
-
-    const smtpFrom = this.configService.get<string>('SMTP_FROM');
-
-    const smtpSecure = this.configService.get<string>('SMTP_SECURE') === 'true';
-
-    if (!smtpHost || !smtpUser || !smtpPass || !smtpFrom) {
-      throw new InternalServerErrorException(
-        'El servicio de correo no se encuentra configurado.',
-      );
-    }
-
-    // =======================================================
-    // GENERAR PDF
-    // =======================================================
-
-    const pdf = await this.generarPdf(inscripcionId);
-
-    const nombreArchivo = `Carnet_${datos.codigoCarnet}.pdf`;
-
-    // =======================================================
-    // TRANSPORTER SMTP
-    // =======================================================
-
-    const transporter = nodemailer.createTransport({
-      host: smtpHost,
-
-      port: smtpPort,
-
-      secure: smtpSecure,
-
-      auth: {
-        user: smtpUser,
-
-        pass: smtpPass,
-      },
-    });
-
-    // =======================================================
-    // FECHA
-    // =======================================================
-
-    const fecha = new Intl.DateTimeFormat('es-PE', {
-      day: '2-digit',
-
-      month: '2-digit',
-
-      year: 'numeric',
-
-      timeZone: 'America/Lima',
-    }).format(datos.simulacro.fecha);
-
-    // =======================================================
-    // ENVIAR
-    // =======================================================
-
-    try {
-      await transporter.sendMail({
-        from: smtpFrom,
-
-        to: datos.alumno.correo,
-
-        subject: `Carnet de postulante - Simulacro N.º ${datos.simulacro.numero}`,
-
-        text: `Hola ${datos.alumno.nombres},
-
-Adjuntamos tu carnet de postulante para el Simulacro N.º ${datos.simulacro.numero}.
-
-Carrera: ${datos.carrera.nombre}
-Grupo: ${datos.grupo.codigo}
-Fecha: ${fecha}
-Código de carnet: ${datos.codigoCarnet}
-
-Presenta este carnet el día del simulacro.
-
-${datos.academia}`,
-
-        html: `
-          <div style="
-            font-family: Arial, Helvetica, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            color: #1e293b;
-          ">
-
-            <div style="
-              background: #0F5BD8;
-              color: white;
-              padding: 24px;
-              border-radius: 12px 12px 0 0;
-            ">
-
-              <h2 style="
-                margin: 0;
-                font-size: 22px;
-              ">
-                ${datos.academia}
-              </h2>
-
-              <p style="
-                margin: 6px 0 0;
-                opacity: .9;
-              ">
-                Carnet de postulante
-              </p>
-
-            </div>
-
-
-            <div style="
-              border: 1px solid #e2e8f0;
-              border-top: none;
-              padding: 24px;
-              border-radius: 0 0 12px 12px;
-            ">
-
-              <p>
-                Hola <strong>${datos.alumno.nombreCompleto}</strong>,
-              </p>
-
-              <p>
-                Adjuntamos tu carnet correspondiente al
-                <strong>Simulacro N.º ${datos.simulacro.numero}</strong>.
-              </p>
-
-
-              <table style="
-                width: 100%;
-                margin: 20px 0;
-                border-collapse: collapse;
-              ">
-
-                <tr>
-                  <td style="padding: 8px 0; color: #64748b;">
-                    Carrera
-                  </td>
-
-                  <td style="padding: 8px 0; font-weight: 600;">
-                    ${datos.carrera.nombre}
-                  </td>
-                </tr>
-
-                <tr>
-                  <td style="padding: 8px 0; color: #64748b;">
-                    Grupo
-                  </td>
-
-                  <td style="padding: 8px 0; font-weight: 600;">
-                    ${datos.grupo.codigo}
-                  </td>
-                </tr>
-
-                <tr>
-                  <td style="padding: 8px 0; color: #64748b;">
-                    Fecha
-                  </td>
-
-                  <td style="padding: 8px 0; font-weight: 600;">
-                    ${fecha}
-                  </td>
-                </tr>
-
-                <tr>
-                  <td style="padding: 8px 0; color: #64748b;">
-                    Código
-                  </td>
-
-                  <td style="padding: 8px 0; font-weight: 600;">
-                    ${datos.codigoCarnet}
-                  </td>
-                </tr>
-
-              </table>
-
-
-              <div style="
-                background: #f8fafc;
-                padding: 14px;
-                border-radius: 8px;
-                font-size: 14px;
-                color: #475569;
-              ">
-                Presenta el carnet adjunto el día del simulacro.
-              </div>
-
-            </div>
-
-          </div>
-        `,
-
-        attachments: [
-          {
-            filename: nombreArchivo,
-
-            content: pdf,
-
-            contentType: 'application/pdf',
-          },
-        ],
-      });
-
-      return {
-        mensaje: 'Carnet enviado correctamente por correo.',
-
-        destinatario: datos.alumno.correo,
-
-        alumno: datos.alumno.nombreCompleto,
-
-        codigoCarnet: datos.codigoCarnet,
-      };
-    } catch (error) {
-      console.error('Error enviando carnet por correo:', error);
-
-      throw new InternalServerErrorException(
-        'No se pudo enviar el carnet por correo electrónico.',
-      );
-    }
   }
+
+
+
+  // ==========================================
+  // GENERAR PDF
+  // ==========================================
+
+  const pdf =
+    await this.generarPdf(inscripcionId);
+
+
+
+  const nombreArchivo =
+    `Carnet_${datos.codigoCarnet}.pdf`;
+
+
+
+
+  // ==========================================
+  // FECHA
+  // ==========================================
+
+  const fecha =
+    new Intl.DateTimeFormat(
+      'es-PE',
+      {
+        day:'2-digit',
+        month:'2-digit',
+        year:'numeric',
+        timeZone:'America/Lima',
+      }
+    )
+    .format(datos.simulacro.fecha);
+
+
+
+
+  // ==========================================
+  // CUERPO EMAIL BREVO
+  // ==========================================
+
+
+  const email = {
+
+
+    sender:{
+      name:'SmartExam',
+      email:'lordjprime08@gmail.com',
+    },
+
+
+    to:[
+      {
+        email:
+          datos.alumno.correo,
+
+        name:
+          datos.alumno.nombreCompleto,
+      }
+    ],
+
+
+
+    subject:
+      `Carnet de postulante - Simulacro N° ${datos.simulacro.numero}`,
+
+
+
+    htmlContent:`
+
+    <div style="
+      font-family:Arial;
+      max-width:600px;
+      margin:auto;
+    ">
+
+
+      <h2>
+        SmartExam
+      </h2>
+
+
+      <p>
+        Hola 
+        <b>
+        ${datos.alumno.nombreCompleto}
+        </b>
+      </p>
+
+
+
+      <p>
+        Adjuntamos tu carnet de postulante.
+      </p>
+
+
+
+      <hr>
+
+
+      <p>
+      <b>Simulacro:</b>
+      ${datos.simulacro.numero}
+      </p>
+
+
+      <p>
+      <b>Código:</b>
+      ${datos.codigoCarnet}
+      </p>
+
+
+      <p>
+      <b>Carrera:</b>
+      ${datos.carrera.nombre}
+      </p>
+
+
+      <p>
+      <b>Grupo:</b>
+      ${datos.grupo.codigo}
+      </p>
+
+
+      <p>
+      <b>Fecha:</b>
+      ${fecha}
+      </p>
+
+
+      <br>
+
+
+      <p>
+      Presenta este carnet el día del simulacro.
+      </p>
+
+
+    </div>
+
+
+    `,
+
+
+
+    attachment:[
+      {
+        name:
+          nombreArchivo,
+
+
+        content:
+          pdf.toString('base64'),
+      }
+    ]
+
+  };
+
+
+
+
+  // ==========================================
+  // ENVIAR A BREVO
+  // ==========================================
+
+
+  try {
+
+
+    await axios.post(
+
+      'https://api.brevo.com/v3/smtp/email',
+
+
+      email,
+
+
+      {
+
+        headers:{
+
+          accept:
+            'application/json',
+
+
+          'api-key':
+            apiKey,
+
+
+          'content-type':
+            'application/json'
+
+        }
+
+      }
+
+    );
+
+
+
+
+    return {
+
+
+      mensaje:
+        'Carnet enviado correctamente.',
+
+
+
+      destinatario:
+        datos.alumno.correo,
+
+
+      alumno:
+        datos.alumno.nombreCompleto,
+
+
+      codigoCarnet:
+        datos.codigoCarnet
+
+    };
+
+
+
+  }
+
+  catch(error:any){
+
+
+    console.error(
+      'Error Brevo:',
+      error.response?.data ||
+      error.message
+    );
+
+
+
+    throw new InternalServerErrorException(
+      'No se pudo enviar el carnet por correo electrónico.'
+    );
+
+
+  }
+
+
+}
 
   async obtenerDatosWhatsApp(inscripcionId: number) {
     const datos = await this.obtenerDatosCarnet(inscripcionId);
